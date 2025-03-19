@@ -239,9 +239,10 @@ class(WAT_micro_cluster_sample_2km)
 WAT_micro_cluster_sample_2km<-as.data.frame(WAT_micro_cluster_sample_2km)
 
 #veranderen rijnamen (nodig voor PCA/Cluster)
-rownames(WAT_micro_cluster_sample_2km) <- WAT_micro_cluster_sample_2km[,1]
+rownames(WAT_micro_cluster_sample_2km) <- WAT_micro_cluster_sample_2km[,"Unique.Sample.Identifier"]
 #verwijderen kolom sample names
-WAT_micro_cluster_sample_2km<-WAT_micro_cluster_sample_2km[,-1]
+WAT_micro_cluster_sample_2km<-WAT_micro_cluster_sample_2km%>%
+  select(-c("Unique.Sample.Identifier"))
 
 colnames(WAT_micro_cluster_sample_2km)
 summary(WAT_micro_cluster_sample_2km)
