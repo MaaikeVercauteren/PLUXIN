@@ -197,8 +197,193 @@ ggplot(data_mean_Conc, aes(x = variable, y = value_mean, fill = clust)) +
 
 
 
+
+
+
+######################################################################################################
+####Visualization main clusters with subclusters
+######################################################################################################
+
+
+
+############################################
+####    CLUSTER - Defining subclusters  ####
+############################################
+
+
+sum(result_HCPC_macro_WAT$clust==1)#35 samples
+sum(result_HCPC_macro_WAT$clust==2)#1 samples
+sum(result_HCPC_macro_WAT$clust==3)#1 samples
+sum(result_HCPC_macro_WAT$clust==4)#1 samples
+
+
+subcluster1<-c("MAC_W_090", "MAC_W_064", "MAC_W_065")
+
+subcluster2<-c("MAC_W_018","MAC_W_108", "MAC_W_032")
+
+subcluster4<-c("MAC_W_123", "MAC_W_049","MAC_W_035")
+
+
+result_HCPC_macro_WAT<-result_HCPC_macro_WAT%>%
+  mutate(cluster = ifelse(clust== 2 |clust == 3|clust == 4, as.factor(result_HCPC_macro_WAT$clust),
+                          ifelse(result_HCPC_macro_WAT$Unique.Sample.Identifier %in% subcluster1, "S1", 
+                                 ifelse(result_HCPC_macro_WAT$Unique.Sample.Identifier %in% subcluster2, "S2", 
+                                        ifelse(result_HCPC_macro_WAT$Unique.Sample.Identifier %in% subcluster4, "S4", "S3")))))
+
+
+
+
+############################################
+####    CLUSTER - Bargraphs             ####
+############################################
+result_bar<-result_HCPC_macro_WAT%>%
+  select(c("PP_total_conc","PE_total_conc","PS_total_conc", "Others_total_conc","Unknown_pm_total_conc",
+           "Unknown_shape_total_conc","fragments_total_conc","filaments_total_conc","pellets_total_conc","films_total_conc","foams_total_conc",
+           "others_shape_total_conc",
+           "SC3_total_conc","SC4_total_conc","SC5_total_conc","SC6_total_conc" ,"SC7_total_conc",
+           "Loc_total_conc", "cluster"))
+
+
+##change the column names according to the variable's category 
+
+# Define the columns to prefix
+columns_PM_ <- c("PP_total_conc","PE_total_conc","PS_total_conc", "Others_total_conc","Unknown_pm_total_conc")
+
+columns_SC_ <- c("SC3_total_conc","SC4_total_conc","SC5_total_conc","SC6_total_conc" ,"SC7_total_conc") 
+
+columns_Conc_ <- c("Loc_total_conc")
+
+columns_shape_ <- c("Unknown_shape_total_conc","fragments_total_conc","filaments_total_conc","pellets_total_conc","films_total_conc","foams_total_conc",
+                    "others_shape_total_conc")
+# Function to add the prefix
+new_column_names <- sapply(names(result_bar), function(c) {
+  if (c %in% columns_PM_) {
+    paste0("PM_", c)
+  } else if (c %in% columns_SC_) {
+    paste0("SC_", c)
+  } else if (c %in% columns_Conc_) {
+    paste0("Conc_", c)
+  } else if (c %in% columns_shape_) {
+    paste0("Shape_", c)
+  } else {
+    c
+  }
+})
+
+# Assign the new column names to the dataframe
+names(result_bar) <- new_column_names
+
+# Convert data to long format for ggplot2
+data_long <- melt(result_bar, id.vars = "cluster")
+
+data_long<-data_long%>%
+  mutate(group=ifelse(grepl("PM_", variable), "PM",
+                      ifelse(grepl("SC_", variable), "SC",
+                             ifelse(grepl("Conc_", variable), "Conc",
+                                    ifelse(grepl("Shape_", variable), "Shape", NA)))))
+
+data_long$cluster <- factor(data_long$cluster, levels = c("4","3","2","S3","S1", "S2", "S4"))
+
+options(scipen=999)
+
+data_mean<-data_long%>%
+  group_by(cluster,group, variable)%>%
+  summarise(value_mean=mean(value))
+
+
+## bargraph all variables
+#not relative but absolute
+ggplot(data_mean, aes(x = variable, y = value_mean, fill = cluster)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~cluster, nrow=1)+
+  coord_flip() +  # Flip for horizontal bars
+  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00","yellow", "red", "pink", "cyan3", "grey")) + # Customize colors
+  labs(x = "", y = "Absolute Concentration") +
+  theme_minimal() +
+  theme(text = element_text(size = 14),legend.position = "none")
+
+#bargraph relative all variables
+data_mean<-data_mean%>%
+  group_by(cluster,group)%>%
+  mutate(value_rel= (value_mean / sum(value_mean)) * 100)%>%
+  ungroup()
+
+ggplot(data_mean, aes(x = variable, y = value_rel, fill = cluster)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~cluster, nrow=1)+
+  coord_flip() +  # Flip for horizontal bars
+  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00", "yellow","red", "pink", "cyan3", "grey")) + # Customize colors
+  labs(x = "", y = "Relative Concentration") +
+  theme_minimal() +
+  theme(text = element_text(size = 14),legend.position = "none")
+#doesn't make sence for conc 
+
+
+## bargraph polymertypes
+data_mean_PM<-data_mean%>%
+  filter(group=="PM")%>%
+  group_by(cluster)%>%
+  mutate(value_rel= (value_mean / sum(value_mean)) * 100)%>%
+  ungroup()
+
+ggplot(data_mean_PM, aes(x = variable, y = value_rel, fill = cluster)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~cluster, nrow = 1)+
+  coord_flip() +  # Flip for horizontal bars
+  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00","yellow", "red", "pink", "cyan3", "grey")) + # Customize colors
+  labs(x = "", y = "Relative Concentration") +
+  theme_minimal() +
+  theme(text = element_text(size = 14),legend.position = "none")
+
+## bargraph size groups
+data_mean_SC<-data_mean%>%
+  filter(group=="SC")%>%
+  group_by(cluster)%>%
+  mutate(value_rel= (value_mean / sum(value_mean)) * 100)%>%
+  ungroup()
+
+ggplot(data_mean_SC, aes(x = variable, y = value_rel, fill = cluster)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~cluster, nrow = 1)+
+  coord_flip() +  # Flip for horizontal bars
+  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00", "yellow","red", "pink", "cyan3", "grey")) + # Customize colors
+  labs(x = "", y = "Relative Concentration") +
+  theme_minimal() +
+  theme(text = element_text(size = 14),legend.position = "none")
+
+## bargraph shape
+data_mean_Shape<-data_mean%>%
+  filter(group=="Shape")
+
+ggplot(data_mean_Shape, aes(x = variable, y = value_mean, fill = cluster)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~cluster, nrow = 1)+
+  coord_flip() +  # Flip for horizontal bars
+  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00","yellow", "red", "pink", "cyan3", "grey")) + # Customize colors
+  labs(x = "", y = "Absolute Concentration") +
+  theme_minimal() +
+  theme(text = element_text(size = 14), legend.position = "none")
+
+## bargraph concentration 
+data_mean_Conc<-data_mean%>%
+  filter(group=="Conc")
+
+ggplot(data_mean_Conc, aes(x = variable, y = value_mean, fill = cluster)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~cluster, nrow = 1)+
+  coord_flip() +  # Flip for horizontal bars
+  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00", "yellow","red", "pink", "cyan3", "grey")) + # Customize colors
+  labs(x = "", y = "Absolute Concentration") +
+  theme_minimal() +
+  theme(text = element_text(size = 14), legend.position = "none")
+
+
+
+
+
+
 ###########################################
-#visualization PCA plot
+#visualization PCA plot - no use if supplementary variables are not used in the analysis
 ###########################################
 result_HCPC_macro_WAT_PCA<-as.data.frame(read_csv("Final analysis/Results/result_HCPC_macro_WAT.csv"))
 
@@ -311,197 +496,6 @@ ggplot(quantisup_contrib_long, aes(x = Variable, y = value, fill = variable)) +
   labs(x = "", y = "Contribution (%)", title = "Variable Contributions to PCA") +
   theme_minimal() +
   theme(text = element_text(size = 14), legend.position = "none")
-
-
-
-
-
-
-
-######################################################################################################
-####Visualization main clusters with subclusters
-######################################################################################################
-
-
-
-############################################
-####    CLUSTER - Defining subclusters  ####
-############################################
-
-
-sum(result_HCPC_macro_WAT$clust==1)#35 samples
-sum(result_HCPC_macro_WAT$clust==2)#1 samples
-sum(result_HCPC_macro_WAT$clust==3)#1 samples
-sum(result_HCPC_macro_WAT$clust==4)#1 samples
-
-
-subcluster1<-c("MAC_W_090", "MAC_W_064", "MAC_W_065")
-
-subcluster2<-c("MAC_W_018","MAC_W_108", "MAC_W_032")
-
-subcluster3<- c("MAC_W_038", "MAC_W_030","MAC_W_141", "MAC_W_056", "MAC_W_120","MAC_W_121","MAC_W_040",
-                "MAC_W_122","MAC_W_082", "MAC_W_075","MAC_W_081","MAC_W_091","MAC_W_118", "MAC_W_054", "MAC_W_068", 
-                "MAC_W_033","MAC_W_039","MAC_W_043","MAC_W_010",
-                "MAC_W_016","MAC_W_026","MAC_W_116","MAC_W_034",
-                "MAC_W_047","MAC_W_027","MAC_W_019")
-
-subcluster4<-c("MAC_W_123", "MAC_W_049","MAC_W_035")
-
-
-result_HCPC_macro_WAT<-result_HCPC_macro_WAT%>%
-  mutate(cluster = ifelse(clust== 2 |clust == 3|clust == 4, as.factor(result_HCPC_macro_WAT$clust),
-                          ifelse(result_HCPC_macro_WAT$Unique.Sample.Identifier %in% subcluster1, "S1", 
-                                 ifelse(result_HCPC_macro_WAT$Unique.Sample.Identifier %in% subcluster2, "S2", 
-                                        ifelse(result_HCPC_macro_WAT$Unique.Sample.Identifier %in% subcluster3, "S3", "S4")))))
-
-
-
-
-############################################
-####    CLUSTER - Bargraphs             ####
-############################################
-result_bar<-result_HCPC_macro_WAT%>%
-  select(c("PP_total_conc","PE_total_conc","PS_total_conc", "Others_total_conc","Unknown_pm_total_conc",
-           "Unknown_shape_total_conc","fragments_total_conc","filaments_total_conc","pellets_total_conc","films_total_conc","foams_total_conc",
-           "others_shape_total_conc",
-           "SC3_total_conc","SC4_total_conc","SC5_total_conc","SC6_total_conc" ,"SC7_total_conc",
-           "Loc_total_conc", "cluster"))
-
-
-##change the column names according to the variable's category 
-
-# Define the columns to prefix
-columns_PM_ <- c("PP_total_conc","PE_total_conc","PS_total_conc", "Others_total_conc","Unknown_pm_total_conc")
-
-columns_SC_ <- c("SC3_total_conc","SC4_total_conc","SC5_total_conc","SC6_total_conc" ,"SC7_total_conc") 
-
-columns_Conc_ <- c("Loc_total_conc")
-
-columns_shape_ <- c("Unknown_shape_total_conc","fragments_total_conc","filaments_total_conc","pellets_total_conc","films_total_conc","foams_total_conc",
-                    "others_shape_total_conc")
-# Function to add the prefix
-new_column_names <- sapply(names(result_bar), function(c) {
-  if (c %in% columns_PM_) {
-    paste0("PM_", c)
-  } else if (c %in% columns_SC_) {
-    paste0("SC_", c)
-  } else if (c %in% columns_Conc_) {
-    paste0("Conc_", c)
-  } else if (c %in% columns_shape_) {
-    paste0("Shape_", c)
-  } else {
-    c
-  }
-})
-
-# Assign the new column names to the dataframe
-names(result_bar) <- new_column_names
-
-# Convert data to long format for ggplot2
-data_long <- melt(result_bar, id.vars = "cluster")
-
-data_long<-data_long%>%
-  mutate(group=ifelse(grepl("PM_", variable), "PM",
-                      ifelse(grepl("SC_", variable), "SC",
-                             ifelse(grepl("Conc_", variable), "Conc",
-                                    ifelse(grepl("Shape_", variable), "Shape", NA)))))
-
-data_long$cluster <- factor(data_long$cluster, levels = c("4","3","2","S1", "S2", "S3", "S4"))
-
-options(scipen=999)
-
-data_mean<-data_long%>%
-  group_by(cluster,group, variable)%>%
-  summarise(value_mean=mean(value))
-
-
-## bargraph all variables
-#not relative but absolute
-ggplot(data_mean, aes(x = variable, y = value_mean, fill = cluster)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~cluster, nrow=1)+
-  coord_flip() +  # Flip for horizontal bars
-  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00","yellow", "red", "pink", "cyan3", "grey")) + # Customize colors
-  labs(x = "", y = "Absolute Concentration") +
-  theme_minimal() +
-  theme(text = element_text(size = 14),legend.position = "none")
-
-#bargraph relative all variables
-data_mean<-data_mean%>%
-  group_by(cluster,group)%>%
-  mutate(value_rel= (value_mean / sum(value_mean)) * 100)%>%
-  ungroup()
-
-ggplot(data_mean, aes(x = variable, y = value_rel, fill = cluster)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~cluster, nrow=1)+
-  coord_flip() +  # Flip for horizontal bars
-  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00", "yellow","red", "pink", "cyan3", "grey")) + # Customize colors
-  labs(x = "", y = "Relative Concentration") +
-  theme_minimal() +
-  theme(text = element_text(size = 14),legend.position = "none")
-#doesn't make sence for conc 
-
-
-## bargraph polymertypes
-data_mean_PM<-data_mean%>%
-  filter(group=="PM")%>%
-  group_by(cluster)%>%
-  mutate(value_rel= (value_mean / sum(value_mean)) * 100)%>%
-  ungroup()
-
-ggplot(data_mean_PM, aes(x = variable, y = value_rel, fill = cluster)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~cluster, nrow = 1)+
-  coord_flip() +  # Flip for horizontal bars
-  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00","yellow", "red", "pink", "cyan3", "grey")) + # Customize colors
-  labs(x = "", y = "Relative Concentration") +
-  theme_minimal() +
-  theme(text = element_text(size = 14),legend.position = "none")
-
-## bargraph size groups
-data_mean_SC<-data_mean%>%
-  filter(group=="SC")%>%
-  group_by(cluster)%>%
-  mutate(value_rel= (value_mean / sum(value_mean)) * 100)%>%
-  ungroup()
-
-ggplot(data_mean_SC, aes(x = variable, y = value_rel, fill = cluster)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~cluster, nrow = 1)+
-  coord_flip() +  # Flip for horizontal bars
-  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00", "yellow","red", "pink", "cyan3", "grey")) + # Customize colors
-  labs(x = "", y = "Relative Concentration") +
-  theme_minimal() +
-  theme(text = element_text(size = 14),legend.position = "none")
-
-## bargraph shape
-data_mean_Shape<-data_mean%>%
-  filter(group=="Shape")
-
-ggplot(data_mean_Shape, aes(x = variable, y = value_mean, fill = cluster)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~cluster, nrow = 1)+
-  coord_flip() +  # Flip for horizontal bars
-  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00","yellow", "red", "pink", "cyan3", "grey")) + # Customize colors
-  labs(x = "", y = "Absolute Concentration") +
-  theme_minimal() +
-  theme(text = element_text(size = 14), legend.position = "none")
-
-## bargraph concentration 
-data_mean_Conc<-data_mean%>%
-  filter(group=="Conc")
-
-ggplot(data_mean_Conc, aes(x = variable, y = value_mean, fill = cluster)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~cluster, nrow = 1)+
-  coord_flip() +  # Flip for horizontal bars
-  scale_fill_manual(values = c("#009E73", "#56B4E9", "#E69F00", "yellow","red", "pink", "cyan3", "grey")) + # Customize colors
-  labs(x = "", y = "Absolute Concentration") +
-  theme_minimal() +
-  theme(text = element_text(size = 14), legend.position = "none")
-
-
 
 
 
