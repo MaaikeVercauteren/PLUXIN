@@ -97,7 +97,7 @@ data_long<-data_long%>%
                              ifelse(grepl("Conc_", variable), "Conc",
                                     ifelse(grepl("Shape_", variable), "Shape", NA)))))
 
-data_long$clust <- factor(data_long$clust, levels = c("1", "2","3","4","5","6"))
+data_long$clust <- factor(data_long$clust, levels = c("6", "1","2","5","3","4"))
 
 options(scipen=999)
 

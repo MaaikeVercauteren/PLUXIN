@@ -75,21 +75,61 @@ summary_spot_SED<-data_full_SED_spot%>%
   summarise(n=n_distinct(`Unique.Sample.Identifier`), n_loc=n_distinct(`Sampling.Location`), n_date=n_distinct(`Date`))
 
 
-summary_spot_samples_WAT<-data_full_WAT_spot%>%
-  group_by(`Sampling.Area.general`,`Sample.Type`)%>%
-  summarise(n=n_distinct(`Unique.Sample.Identifier`), n_loc=n_distinct(`Sampling.Location`), n_date=n_distinct(`Date`))
+length(unique(data_full_WAT_spot$Sampling.Location.specific))
 
-summary_spot_samples_SED<-data_full_SED_spot%>%
-  group_by(`Sampling.Area.general`,`Sample.Type`)%>%
-  summarise(n=n_distinct(`Unique.Sample.Identifier`), n_loc=n_distinct(`Sampling.Location`), n_date=n_distinct(`Date`))
+#number of particles per matrix
+sum(!is.na(data_full_WAT_spot$Polymer))
+sum(!is.na(data_full_SED_spot$Polymer))
+
+total<-sum(!is.na(data_full_WAT_spot$Polymer)) + sum(!is.na(data_full_SED_spot$Polymer))
+total
+
+#number of particles per matrix and size
+sum(!is.na(data_full_WAT_micro_spot$Polymer))
+sum(!is.na(data_full_WAT_macro_spot$Polymer))
+sum(!is.na(data_full_SED_macro$Polymer))
+sum(!is.na(data_full_SED_micro$Polymer))
+
+#Samples without polymers
+num_samples_WAT_spot <- data_full_WAT_spot %>%
+  filter(!is.na(Polymer)) %>%
+  distinct(`Unique.Sample.Identifier`) %>%
+  nrow()
+print(num_samples_WAT_spot)
+                                                   
+num_samples_SED_spot <- data_full_SED_spot %>%
+  filter(!is.na(Polymer)) %>%
+  distinct(`Unique.Sample.Identifier`) %>%
+  nrow()
+print(num_samples_SED_spot)                                                
+                                                   
+num_samples_WAT_micro_spot <- data_full_WAT_micro_spot %>%
+  filter(!is.na(Polymer)) %>%
+  distinct(`Unique.Sample.Identifier`) %>%
+  nrow()
+print(num_samples_WAT_micro_spot)
 
 
+num_samples_WAT_macro_spot <- data_full_WAT_macro_spot %>%
+  filter(!is.na(Polymer)) %>%
+  distinct(`Unique.Sample.Identifier`) %>%
+  nrow()
+print(num_samples_WAT_macro_spot)
+
+num_samples_SED_macro <- data_full_SED_macro %>%
+  filter(!is.na(Polymer)) %>%
+  distinct(`Unique.Sample.Identifier`) %>%
+  nrow()
+print(num_samples_SED_macro)
 
 
-#number of samples with plastics observed
-
-
-
+num_samples_SED_micro <- data_full_SED_micro %>%
+  filter(!is.na(Polymer)) %>%
+  distinct(`Unique.Sample.Identifier`) %>%
+  nrow()
+print(num_samples_SED_micro)
+                                       
+                                                   
 ###########################################################################################################################################################################
 ##Water 
 ###########################################################################################################################################################################

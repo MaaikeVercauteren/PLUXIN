@@ -137,7 +137,7 @@ summary(SED_micro_cluster_sample$`radius..km.`)
 
 summary(SED_micro_cluster_sample)
 #based on first observation, a few fractions are not present: 
-#PVC, Ohter, unknown
+#PVC, Others, unknown
 #SC5, 6 en 7
 
 #remove variables that are not useful
@@ -146,7 +146,7 @@ summary(SED_micro_cluster_sample)
 #"radius (degree)","radius (km)","area (km²)" chosen ourselves and similar for all data
 #alternative measures for flood risk
 #pop per year ==> to general, pop_dens gives specific information per locations
-#...1
+#...1, ...2
 
 #extra changes: 
 #removal of "Sampling Location specific" 
@@ -195,8 +195,11 @@ corrplot(data.cor.temporal)
 #Checking correlation of the local variables correlation matrix
 data.cor.local<-cor(Local, method="spearman")
 corrplot(data.cor.local)
-#recreation and km² at flood risk are highly negatively correlated
-#industry and mean slope highly negatively correlated
+#recreation and km² at flood risk are highly negatively correlated ==> remove flood risk
+#industry and mean slope highly negatively correlated==> remove mean slope
+
+SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
+  select(-c( "Mean.slope", "km..at.flood.risk"))   
 
 
 #########################################
@@ -249,8 +252,7 @@ corrplot(data.cor.local)
 #Sediment type"
 
 
-SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
-  select(-c( "Mean.slope", "km..at.flood.risk"))            
+         
 
 #change to dataframe if necessary         
 class(SED_micro_cluster_sample)
@@ -367,7 +369,6 @@ fviz_dend(res.hcpc,
           cex = 0.9,                     # Label size
           palette = "black",               # Color palette see ?ggpubr::ggpar
           rect = TRUE,                   # Add rectangle around groups
-          labels_track_height = 1.6,      # Augment the room for labels
           main=""
 )
 
