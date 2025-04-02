@@ -245,7 +245,7 @@ result_HCPC_micro_WAT<-result_HCPC_micro_WAT%>%
 #needed for RDA
 cluster<-result_HCPC_micro_WAT%>%
   select(Unique.Sample.Identifier, clust, cluster)
-write.csv(cluster, "PLUXIN-FinalAnalysis/Final dataset/Cluster.csv")
+write.csv(cluster, "PLUXIN-FinalAnalysis/Final dataset/Cluster_mic_w.csv")
 
 ############################################
 ####    CLUSTER - Bargraphs             ####
@@ -394,9 +394,9 @@ ggplot(data_mean_Conc, aes(x = variable, y = value_mean, fill = cluster)) +
 
 
 
-###########################################
-#visualization PCA plot - no use if supplementary variables are not used in the analysis
-###########################################
+# ###########################################
+# #visualization PCA plot - no use if supplementary variables are not used in the analysis
+# ###########################################
 result_HCPC_micro_WAT_PCA<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_micro_WAT.csv"))
 
 
@@ -415,44 +415,52 @@ result_HCPC_micro_WAT_PCA<-result_HCPC_micro_WAT_PCA%>%
   select (c("PES_total_conc", "PS_total_conc", "PAM_total_conc","Others_total_conc","PE_total_conc",
             "PP_total_conc", "Unknown_pm_total_conc",
             "SC1_total_conc", "SC2_total_conc","SC3_total_conc", "SC4_total_conc", "SC5_total_conc",
-            "avgLWratio","Loc_total_conc", 
-            "NaturalBank", "meandering", "ecotope", 
-            "width", "recreation...km..",  "Waste.facilities..nr.", 
-            "nature...km..", "Active.overflow", "mean_temp_mean","pop_dens","transport...km..", "clust", "Sampling.Area.general"))
+            "avgLWratio","Loc_total_conc",
+            "meandering", "ecotope", "Season",
+            "width", "recreation...km..",  "Waste.facilities..nr.",
+            "nature...km..",  "mean_temp_mean","pop_dens","transport...km..", "clust", "Sampling.Area.general"))
 
 #defining quantitative and qualitative variables
-quanti.sup.final<-c("width", "recreation...km..",  "Waste.facilities..nr.", 
-                    "nature...km..", "Active.overflow", "mean_temp_mean","pop_dens","transport...km..")
-quali.sup.final<-c("NaturalBank", "meandering", "ecotope")
+quanti.sup.final<-c("width", "recreation...km..",  "Waste.facilities..nr.",
+                    "nature...km..", "mean_temp_mean","pop_dens","transport...km..")
+quali.sup.final<-c( "meandering", "ecotope", "Season", "clust", "Sampling.Area.general")
 
 
 
 
-res.pca<-PCA(result_HCPC_micro_WAT_PCA, ncp=9,quanti.sup=quanti.sup.final, quali.sup=c(quali.sup.final, "clust", "Sampling.Area.general"),graph=FALSE)
+res.pca<-PCA(result_HCPC_micro_WAT_PCA, ncp=9,quanti.sup=quanti.sup.final, quali.sup=quali.sup.final,graph=TRUE)
 res.pca$eig
 
 plot.PCA(res.pca,choix='var')
 plot.PCA(res.pca,invisible=c('ind.sup'),label =c('ind'), loadings=TRUE)
 
-
+res.pca$quali.sup
 
 #pca
-fviz_pca_biplot(res.pca, 
-                obs.scale=1, var.scale=1, alpha=0.5,col.quanti.sup="darkgrey",
-                label = c("quali.sup", "quanti.sub"), 
-                invisible = "var") +
+fviz_pca_biplot(res.pca,
+                obs.scale=1, var.scale=1, alpha=0.5,
+                col.quanti.sup = "darkgrey",
+                label = c("quali.sup.final", "quanti.sup.final"),
+                invisible = "var")+
   geom_point(size=4,aes(color=factor(result_HCPC_micro_WAT_PCA$`Sampling.Area.general`),
                         shape=factor(result_HCPC_micro_WAT_PCA$clust)))+
   guides(shape = guide_legend(title = "Cluster"),
          colour = guide_legend(title = "Sampling location"))+ labs(title="PCA plot of clusters")
 
+#pca
+fviz_pca_biplot(res.pca,
+                obs.scale=1, var.scale=1, alpha=0.5,
+                col.quanti.sup = "darkgrey",
+                label = c("quali.sup.final", "quanti.sup.final"),
+                invisible = "var")+
+  geom_point(size=4,aes(shape=factor(result_HCPC_micro_WAT_PCA$clust)))+
+  guides(shape = guide_legend(title = "Cluster"))
 
 
 
-
-######################################################################################
-##visualisation contribution of quali variables to PCA
-######################################################################################
+# ######################################################################################
+# ##visualisation contribution of quali variables to PCA
+# ######################################################################################
 
 # Extract contributions of variables to the first two principal components
 qualisup_contrib <- as.data.frame(res.pca$quali.sup$v.test)
@@ -466,7 +474,9 @@ qualisup_contrib$Variable <- rownames(qualisup_contrib)
 
 #Select variables
 qualisup_contrib<-qualisup_contrib%>%
-  filter(Variable %in% c("NaturalBank_Yes", "meandering_Yes", "Antropogeen","Diep Subtidaal","Hoogdynamisch sublittoraal","Matig Diep Subtidaal"))
+  filter(Variable %in% c("NaturalBank_Yes", "meandering_Yes", "Antropogeen","Diep Subtidaal","Hoogdynamisch sublittoraal","Matig Diep Subtidaal", 
+                         "Autumn","Spring","Summer","Winter"))
+
 
 # Convert data to long format for plotting
 qualisup_contrib_long <- melt(qualisup_contrib, id.vars = "Variable")
@@ -481,9 +491,9 @@ ggplot(qualisup_contrib_long, aes(x = Variable, y = value, fill = variable)) +
   theme_minimal() +
   theme(text = element_text(size = 14),legend.position = "none")
 
-######################################################################################
-##visualisation contribution of quanti to PCA
-######################################################################################
+# ######################################################################################
+# ##visualisation contribution of quanti to PCA
+# ######################################################################################
 
 
 # Extract contributions of variables to the first two principal components

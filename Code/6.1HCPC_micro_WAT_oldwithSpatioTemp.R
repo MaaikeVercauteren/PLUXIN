@@ -40,7 +40,7 @@ set.seed(123) #for reproducibility
 data_full_WAT_micro_spot<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_WAT_micro_spot.csv"))
 
 #descriptor
-Descriptor_2km_WAT<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Descriptor/Descriptor_2km_WAT.csv"))
+Descriptor_2km_WAT<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Descriptor/Descriptor_WAT_withadditions.csv"))
 
 
 
@@ -75,19 +75,19 @@ length(unique(data_full_WAT_micro_spot$ `Unique.Sample.Identifier`))
 ##removing or adding 'na.rm=T' has same effect, but with this more control
 data_full_WAT_micro_cluster_sample <- data_full_WAT_micro_spot %>%
   group_by(`Unique.Sample.Identifier`) %>%
-  mutate(PP_total = sum(Polymer_NERC == "polypropylene"),
-         PE_total = sum(Polymer_NERC == "polyethylene"),
-         PES_total = sum(Polymer_NERC == "polyester"),
-         PS_total = sum(Polymer_NERC == "polystyrene"),
-         PVC_total=sum (Polymer_NERC == "polychlorinated polymer"), 
-         PAM_total=sum(Polymer_NERC == "polyacrilamide"),
-         Others_total = sum(Polymer_NERC %in% c("ethylene-vinyl-acetate", "polyether urethane-polypropylene oxide - methylene", "polybutadiene" , "polyurethane", "acrylonitrile butadiene styrene", "polyvinyl alcohol","polymethylacrylate", "polyamide (nylon)", "cellophane", "sodium sterate")),
+  mutate(PP_total = sum(Polymer_NERC == "polypropylene", na.rm=TRUE),
+         PE_total = sum(Polymer_NERC == "polyethylene", na.rm=TRUE),
+         PES_total = sum(Polymer_NERC == "polyester", na.rm=TRUE),
+         PS_total = sum(Polymer_NERC == "polystyrene", na.rm=TRUE),
+         PVC_total=sum (Polymer_NERC == "polychlorinated polymer", na.rm=TRUE), 
+         PAM_total=sum(Polymer_NERC == "polyacrilamide", na.rm=TRUE),
+         Others_total = sum(Polymer_NERC %in% c("ethylene-vinyl-acetate", "polyether urethane-polypropylene oxide - methylene", "polybutadiene" , "polyurethane", "acrylonitrile butadiene styrene", "polyvinyl alcohol","polymethylacrylate", "polyamide (nylon)", "cellophane", "sodium sterate", na.rm=TRUE)),
          Unknown_pm_total = sum(Polymer_NERC == "undefined plastic"),
-         SC1_total = sum(SizeClass == "SC1"),
-         SC2_total = sum(SizeClass == "SC2"),
-         SC3_total = sum(SizeClass == "SC3"),
-         SC4_total = sum(SizeClass == "SC4"),
-         SC5_total = sum(SizeClass == "SC5")) %>%
+         SC1_total = sum(SizeClass == "SC1", na.rm=TRUE),
+         SC2_total = sum(SizeClass == "SC2", na.rm=TRUE),
+         SC3_total = sum(SizeClass == "SC3", na.rm=TRUE),
+         SC4_total = sum(SizeClass == "SC4", na.rm=TRUE),
+         SC5_total = sum(SizeClass == "SC5", na.rm=TRUE)) %>%
   add_count(`Unique.Sample.Identifier`, name = "Loc_total")%>%
   mutate(VolumeTOT= sum(unique(`Volume..L.`)))%>%
   mutate_at(vars(PP_total:Loc_total),
@@ -154,7 +154,7 @@ WAT_micro_cluster_sample_2km<-WAT_micro_cluster_sample_2km%>%
          "transport...km..","urban...km..","water...km..",
          "nature...km..","recreation...km..","waste...km.." ,
          "human.foot.print","ecotope" ,"km..at.flood.risk", "pop_dens","tot_precip_mean",
-         "mean_temp_mean","mean_windspeed_mean","mean_winddirection_mean"))
+         "mean_temp_mean","mean_windspeed_mean","mean_winddirection_mean", "Season"))
 
 
 
@@ -167,15 +167,6 @@ summary(WAT_micro_cluster_sample_2km)
 #########################################
 ####    CLUSTER - correlation        ####
 #########################################
-temporal<-WAT_micro_cluster_sample_2km%>%
-  select(c("tot_precip_mean","mean_temp_mean", "mean_windspeed_mean" ,"pop_dens", "mean_winddirection_mean"))
-Local<-WAT_micro_cluster_sample_2km%>%
-  select(c("Mean.slope","Depth.river","Active.overflow",
-           "width",
-           "shortest.distance.from.shore","RWZI..nr.","Waste.facilities..nr.",
-           "agriculture..km..","industry...km.." ,
-           "transport...km..","urban...km..", "water...km.." ,"nature...km..","recreation...km..",
-           "waste...km..","human.foot.print","km..at.flood.risk"))
 
 #change categorical variables to numeric
 temporal_numeric <- temporal %>%
@@ -208,6 +199,14 @@ heatmap(abs(cor(Local_numeric, use = "pairwise.complete.obs")),
 #water and width ==> remove water
 
 #recreation and km² at flood risk are highly negatively correlated
+
+          
+WAT_micro_cluster_sample_2km<-WAT_micro_cluster_sample_2km%>%
+  select(-c("Active.overflow", "shortest.distance.from.shore", "NaturalBank", "water...km..","km..at.flood.risk"))
+
+
+
+
 
 
 
@@ -265,8 +264,12 @@ heatmap(abs(cor(Local_numeric, use = "pairwise.complete.obs")),
 
 #samplig location specific  as we have descriptors for locations
 
+colnames(WAT_micro_cluster_sample_2km)
 WAT_micro_cluster_sample_2km<-WAT_micro_cluster_sample_2km%>%
-  select(-c( "Sampling.Location.specific","km..at.flood.risk"))            
+  select(-c(Sampling.Location.specific))
+
+
+
 
 #change to dataframe if necessary         
 class(WAT_micro_cluster_sample_2km)
@@ -284,16 +287,16 @@ summary(WAT_micro_cluster_sample_2km)
 
 #-------------------------------------PCA analyse
 set.seed(123) #for reproducibility
-quanti.sup<-c( "width", "shortest.distance.from.shore", "RWZI..nr.", "Waste.facilities..nr.",
-               "agriculture...km..","industry...km..",
+quanti.sup<-c( "width", "RWZI..nr.", "Waste.facilities..nr.",
+               "agriculture..km..","industry...km..",
                "recreation...km..","transport...km..","urban...km..","nature...km..",
-               "waste...km..","water...km..","human.foot.print",
+               "waste...km..","human.foot.print",
                "pop_dens",
                "mean_winddirection_mean",
                "tot_precip_mean","mean_temp_mean","mean_windspeed_mean",
-               "Active.overflow", "Mean.slope","Depth.river")
+               "Mean.slope","Depth.river")
 
-quali.sup<-c("Nearby.vegetation", "NaturalBank", "meandering", "ecotope")
+quali.sup<-c("Nearby.vegetation",  "meandering", "ecotope", "Season")
 
 
 #PCA uitvoeren maar de juiste variablen als supplementary ingeven (alle descriptors)
@@ -362,7 +365,7 @@ str(res.hcpc$desc.var)
 fviz_dend(res.hcpc, 
           cex = 0.9,                     # Label size
           palette = "black",               # Color palette see ?ggpubr::ggpar
-          rect = TRUE,                   # Add rectangle around groups
+          rect = FALSE,                   # Add rectangle around groups
           labels_track_height = 1.6,      # Augment the room for labels
           main=""
 )

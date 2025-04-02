@@ -20,7 +20,7 @@ data_full_WAT_micro_spot<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dat
 
 
 #cluster
-cluster<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Cluster.csv"))
+cluster<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Cluster_mic_w.csv"))
 cluster<-cluster%>%
   select(-`...1`)
 
