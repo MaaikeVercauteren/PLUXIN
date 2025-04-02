@@ -39,6 +39,10 @@ set.seed(123) #for reproducibility
 
 data_full_SED_micro<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_SED_micro.csv"))
 
+#descriptor
+Descriptor_2km_SED<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Descriptor/Descriptor_2km_SED.csv"))
+
+
 #dataset with replicate and dry weight for SED_micro
 replicate_SED_metadata<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Replicate data Sediment"))
 ## Fix some problems in colnames
@@ -69,7 +73,6 @@ replicate_SED_metadata<-replicate_SED_metadata%>%
 ##cluster analysis doesn't work well with NA's 
 sum(is.na(data_full_SED_micro$SizeClass)) #0 NA's
 sum(is.na(data_full_SED_micro$Polymer_NERC))#no NA's
-#all samples contain microplastics so all samples are included in the cluster
 
 #average L/W ratio per location
 LWratio_SED_micro<-data_full_SED_micro%>%
@@ -124,7 +127,15 @@ length(unique(data_full_SED_micro_cluster_sample$ `Unique.Sample.Identifier`))
 #27 samples
 
 
-summary(data_full_SED_micro_cluster_sample)
+
+#adding descriptor data (using both temporal and spatial)
+SED_micro_cluster_sample<-data_full_SED_micro_cluster_sample%>%
+  left_join(Descriptor_2km_SED, by ="Unique.Sample.Identifier")
+
+#check that correct descriptor data is used
+summary(SED_micro_cluster_sample$`radius..km.`)
+
+summary(SED_micro_cluster_sample)
 #based on first observation, a few fractions are not present: 
 #PVC, Ohter, unknown
 #SC5, 6 en 7
@@ -146,12 +157,46 @@ summary(data_full_SED_micro_cluster_sample)
 #removal of mean pressure: "mean_pressure_mean"
 
 
-SED_micro_cluster_sample<-data_full_SED_micro_cluster_sample%>%
-  select(c("Unique.Sample.Identifier","PP_total_conc","PE_total_conc","PES_total_conc",
-           "PS_total_conc","PAM_total_conc","SC1_total_conc","SC2_total_conc","SC3_total_conc",
-           "SC4_total_conc","Loc_total_conc","avgLWratio"))
-
+SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
+  select(-c( "PVC_total_conc", "Others_total_conc", "Unknown_pm_total_conc","SC5_total_conc",
+            "SC6_total_conc", "SC7_total_conc",
+            "Sampling.Location","Matrix","Outside_insideBend","radius..degree.","radius..km.","area..km..",
+            "pixels.at.flood.risk", "X..buffer.at.flood.risk", "total.flooding.depth.in.buffer",
+            "average.flooding.depth.in.buffer", "pop20", "pop22" , "pop21","Pop_AVG", 
+             "Sampling.Location.specific", "tot_precip", "mean_temp", "mean_windspeed", 
+             "mean_winddirection" , "mean_pressure", "mean_cloudiness", 
+             "mean_cloudiness_mean", "tot_precip_TOT","mean_pressure_mean", 
+            "...1", "...2"))   
 colnames(SED_micro_cluster_sample)
+
+
+
+
+
+##---------------------------------------------test correlation between temporal variables and local continuous variables
+temporal<-SED_micro_cluster_sample%>%
+  select(c("tot_precip_mean","mean_temp_mean", "mean_windspeed_mean" ,
+           "mean_winddirection_mean", "pop_dens"))
+Local<-SED_micro_cluster_sample%>%
+  select(c("Mean.slope","Depth.river","Active.overflow",
+           "width",
+           "shortest.distance.from.shore","RWZI..nr.","Waste.facilities..nr.",
+           "agriculture..km..","industry...km..",
+           "transport...km..","urban...km..", "water...km.." ,"nature...km..","recreation...km..",
+           "waste...km..","human.foot.print","km..at.flood.risk","Depth.Sample..m."))
+
+
+
+
+#Checking correlation of the variables correlation matrix
+data.cor.temporal<-cor(temporal, method="spearman")
+corrplot(data.cor.temporal)
+
+#Checking correlation of the local variables correlation matrix
+data.cor.local<-cor(Local, method="spearman")
+corrplot(data.cor.local)
+#recreation and km² at flood risk are highly negatively correlated
+#industry and mean slope highly negatively correlated
 
 
 #########################################
@@ -170,7 +215,42 @@ colnames(SED_micro_cluster_sample)
 #"Loc_total_conc"               
 #"avgLWratio" 
 
+#Supplementary variables
+####quantitative (24)
+#"width" 
+#"shortest distance from shore" 
+#"RWZI [nr]" 
+#"Waste facilities [nr]"        
+#"agriculture [km²]"            
+#"industry  [km²]"              
+#"transport  [km²]"            
+#"urban  [km²]"                 
+#"water  [km²]"                 
+#"nature  [km²]"                
+#"recreation  [km²]"           
+#"waste  [km²]"                
+#"human foot print"
+#"km² at flood risk" ==> remove   
+#"pop_dens"                     
+#"tot_precip_mean"             
+#"mean_temp_mean"               
+#"mean_windspeed_mean"          
+#"mean_winddirection_mean"      
+#"Active overflow" 
+#"Mean slope"  ==> remove              
+#"Depth river"
+#"Depth Sample (m)"
 
+####qualitative  (5)
+#"Nearby vegetation"            
+#"NaturalBank"                 
+#"meandering"                                     
+#"ecotope" 
+#Sediment type"
+
+
+SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
+  select(-c( "Mean.slope", "km..at.flood.risk"))            
 
 #change to dataframe if necessary         
 class(SED_micro_cluster_sample)
@@ -184,14 +264,28 @@ SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
 colnames(SED_micro_cluster_sample)
 
 #-------------------------------------PCA analyse
+#test voor nodig aantal dimensies om mee te nemen naar clustering, default = 5
+#voor consistentie kiezen we altijd min. 95% van de variantie beschreven.
+quanti.sup<-c( "width", "shortest.distance.from.shore", "RWZI..nr.", "Waste.facilities..nr.",
+               "agriculture..km..","industry...km..",
+               "recreation...km..","transport...km..","urban...km..","nature...km..",
+               "waste...km..","water...km..","human.foot.print",
+               "pop_dens",
+               "mean_winddirection_mean",
+               "tot_precip_mean","mean_temp_mean","mean_windspeed_mean",
+               "Active.overflow", "Depth.river","Depth.Sample..m.")
+
+
+quali.sup<-c("Nearby.vegetation", "NaturalBank", "meandering", "ecotope","Sediment.type")
+
 set.seed(123)
 #PCA uitvoeren maar de juiste variablen als supplementary ingeven (alle descriptors)
-res<-PCA(SED_micro_cluster_sample,ncp=Inf,graph=FALSE)
+res<-PCA(SED_micro_cluster_sample,ncp=Inf,quanti.sup=quanti.sup, quali.sup=quali.sup,graph=FALSE)
 res$eig #6 dimensions explain 95.76% of variance 
 
 
 #nieuwe analyse met bepaald aantal dimensies
-res.pca.micro.sed<-PCA(SED_micro_cluster_sample,ncp=6,graph=FALSE)
+res.pca.micro.sed<-PCA(SED_micro_cluster_sample,ncp=6,quanti.sup=quanti.sup, quali.sup=quali.sup,graph=FALSE)
 res.pca.micro.sed$eig
 
 #verkennende plots
@@ -272,7 +366,7 @@ table(res.hcpc$data.clust$clust)
 fviz_dend(res.hcpc, 
           cex = 0.9,                     # Label size
           palette = "black",               # Color palette see ?ggpubr::ggpar
-          rect = FALSE,                   # Add rectangle around groups
+          rect = TRUE,                   # Add rectangle around groups
           labels_track_height = 1.6,      # Augment the room for labels
           main=""
 )
@@ -281,9 +375,9 @@ fviz_dend(res.hcpc,
 ##exporting results
 #################################
 
-
-result_HCPC_micro_SED<- res.hcpc$data.clust
-#add sample ID as column
-result_HCPC_micro_SED$Unique.Sample.Identifier<-rownames(result_HCPC_micro_SED)
-
-write.csv(result_HCPC_micro_SED, "PLUXIN-FinalAnalysis/Results/result_HCPC_micro_SED.csv")
+# 
+# result_HCPC_micro_SED<- res.hcpc$data.clust
+# #add sample ID as column
+# result_HCPC_micro_SED$Unique.Sample.Identifier<-rownames(result_HCPC_micro_SED)
+# 
+# write.csv(result_HCPC_micro_SED, "PLUXIN-FinalAnalysis/Results/result_HCPC_micro_SED.csv")

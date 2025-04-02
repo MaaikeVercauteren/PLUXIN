@@ -189,8 +189,21 @@ Descriptor_SED_additions<-Descriptor_SED_additions%>%
 ########################
 ##Check collinearity
 ########################
-numeric_descriptor <- Descriptor_SED_additions[sapply(Descriptor_SED_additions, is.numeric)]
+#change categorical in numeric
+Descriptor_numeric <- Descriptor_SED_additions %>%
+  mutate(across(where(is.character), as.factor)) %>%  # Convert characters to factors
+  mutate(across(where(is.factor), ~ as.numeric(as.factor(.))))
 
+# We can visually look for correlations between variables:
+heatmap(abs(cor(Descriptor_numeric)), 
+        # Compute pearson correlation (note they are absolute values)
+        col = rev(heat.colors(6)), 
+        Colv = NA, Rowv = NA)
+legend("topright", 
+       title = "Absolute Pearson R",
+       legend =  round(seq(0,1, length.out = 6),1),
+       y.intersp = 0.7, bty = "n",
+       fill = rev(heat.colors(6)))
 # We can visually look for correlations between variables:
 heatmap(abs(cor(numeric_descriptor)), 
         # Compute pearson correlation (note they are absolute values)
@@ -250,6 +263,136 @@ anova.cca(micro.SED.rda, step = 1000)
 anova.cca(micro.SED.rda, step = 1000, by = "term")
 
 ordiplot(micro.SED.rda, scaling=1)
+
+
+
+#problems: 
+#overfitting
+#remove redundant variables
+#imbalance between predictor and response
+#check shared variance via variance partitioning.
+
+##########################################################################################
+##RDA with reduced number of predictor variables to increase fitting of the model.
+##########################################################################################
+set.seed(123) #for reproducibility
+###Descriptor data
+#based on full Descriptor dataset with additions
+Descriptor_SED_additions<- read.csv("Final analysis/Final dataset/Descriptor/Descriptor_SED_withadditions.csv")
+
+
+#############################################
+#Necessary changes in descriptor dataset
+#############################################
+
+#Environmental variables
+####quantitative
+#"width" ==> expected to be less important for sediment 
+#"shortest distance from shore"==> expected to be less important for sediment 
+#"Nearby vegetation"   ==> expected to be less important for sediment          
+#"NaturalBank" ==> expected to be less important for sediment                
+#"meandering"  ==> keep                                   
+#"ecotope" ==> keep
+
+
+#"RWZI [nr]" 
+#"Waste facilities [nr]" 
+#"Active overflow" 
+#replace by "TotalPointDischarge"
+
+
+#"agriculture [km²]"            
+#"industry  [km²]"              
+#"transport  [km²]"            
+#"urban  [km²]"                 
+#"water  [km²]"                 
+#"nature  [km²]"                
+#"recreation  [km²]"           
+#"waste  [km²]"  
+#landuse==> can be captured by Natural_non natural
+
+#"human foot print" ==> repetitive, remove
+#"pop_dens"       ==> keep              
+
+#"tot_precip_mean"             
+#"mean_temp_mean"               
+#"mean_windspeed_mean"          
+#"mean_winddirection_mean" 
+#replace by season
+
+
+#"Depth Sample (m)"
+#Sediment type"
+
+
+#NAs in diepte (redelijk veel) en regenval en temperatuur
+#Diepte waterkolom weglaten 
+#extra kolommen weglaten 
+
+Descriptor_SED_reduced<-Descriptor_SED_additions%>%
+  select(c("Unique.Sample.Identifier", "meandering", "ecotope","TotalPointDischarge", 
+           "Natural_NonNatural","pop_dens", "Season","Depth.Sample..m.", "Sediment.type"))
+
+#remove macroplastic samples
+Descriptor_SED_reduced <- Descriptor_SED_reduced %>%
+  filter(!grepl("^MAC", Unique.Sample.Identifier))
+
+
+#NA's in sediment type replacen
+Descriptor_SED_reduced$`Sediment.type`[is.na(Descriptor_SED_reduced$`Sediment.type`)] <- "Unknown"
+
+
+# Standardize quantitative environmental data
+Descriptor_SED_reduced$`pop_dens` <- decostand(Descriptor_SED_reduced$`pop_dens`, method = "standardize")
+Descriptor_SED_reduced$`Depth.Sample..m.` <- decostand(Descriptor_SED_reduced$`Depth.Sample..m.`, method = "standardize")
+Descriptor_SED_reduced$TotalPointDischarge <- decostand(Descriptor_SED_reduced$TotalPointDischarge, method = "standardize")
+
+
+
+class(Descriptor_SED_reduced)
+
+#veranderen rijnamen (nodig voor PCA/Cluster)
+rownames(Descriptor_SED_reduced)<- Descriptor_SED_reduced[,"Unique.Sample.Identifier"]
+#verwijderen kolom sample names
+Descriptor_SED_reduced<-Descriptor_SED_reduced%>%
+  select(-Unique.Sample.Identifier)
+
+
+
+################################################
+##Redundancy analysis
+
+#Redundancy Analysis (RDA) is a direct extension of multiple regression, as it models the effect 
+#of an explanatory matrix X on a response matrix  Y
+# https://r.qcbs.ca/workshop10/book-en/redundancy-analysis.html
+
+
+
+
+########################
+##Check collinearity
+#change categorical in numeric
+Descriptor_numeric <- Descriptor_SED_reduced %>%
+  mutate(across(where(is.character), as.factor)) %>%  # Convert characters to factors
+  mutate(across(where(is.factor), ~ as.numeric(as.factor(.))))
+
+# We can visually look for correlations between variables:
+heatmap(abs(cor(Descriptor_numeric)), 
+        # Compute pearson correlation (note they are absolute values)
+        col = rev(heat.colors(6)), 
+        Colv = NA, Rowv = NA)
+legend("topright", 
+       title = "Absolute Pearson R",
+       legend =  round(seq(0,1, length.out = 6),1),
+       y.intersp = 0.7, bty = "n",
+       fill = rev(heat.colors(6)))
+
+
+
+
+
+
+
 
 #plot
 env_scores <- scores(micro.SED.rda, display = "bp", scaling = 2)
