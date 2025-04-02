@@ -37,14 +37,14 @@ set.seed(123) #for reproducibility
 #Datasets
 ########################
 
-data_full_SED_micro<-as.data.frame(read_csv("Final analysis/Final dataset/Datasplits/data_full_SED_micro.csv"))
+data_full_SED_micro<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_SED_micro.csv"))
 
 #descriptor
-Descriptor_2km_SED<-as.data.frame(read_csv("Final analysis/Final dataset/Descriptor/Descriptor_2km_SED.csv"))
+Descriptor_2km_SED<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Descriptor/Descriptor_2km_SED.csv"))
 
 
 #dataset with replicate and dry weight for SED_micro
-replicate_SED_metadata<-as.data.frame(read_xlsx("Final analysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Replicate data Sediment"))
+replicate_SED_metadata<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Replicate data Sediment"))
 ## Fix some problems in colnames
 colnames(replicate_SED_metadata) <- make.names(colnames(replicate_SED_metadata))
 
@@ -137,7 +137,7 @@ summary(SED_micro_cluster_sample$`radius..km.`)
 
 summary(SED_micro_cluster_sample)
 #based on first observation, a few fractions are not present: 
-#PVC, Others, unknown
+#PVC, Ohter, unknown
 #SC5, 6 en 7
 
 #remove variables that are not useful
@@ -146,7 +146,7 @@ summary(SED_micro_cluster_sample)
 #"radius (degree)","radius (km)","area (km²)" chosen ourselves and similar for all data
 #alternative measures for flood risk
 #pop per year ==> to general, pop_dens gives specific information per locations
-#...1, ...2
+#...1
 
 #extra changes: 
 #removal of "Sampling Location specific" 
@@ -195,11 +195,8 @@ corrplot(data.cor.temporal)
 #Checking correlation of the local variables correlation matrix
 data.cor.local<-cor(Local, method="spearman")
 corrplot(data.cor.local)
-#recreation and km² at flood risk are highly negatively correlated ==> remove flood risk
-#industry and mean slope highly negatively correlated==> remove mean slope
-
-SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
-  select(-c( "Mean.slope", "km..at.flood.risk"))   
+#recreation and km² at flood risk are highly negatively correlated
+#industry and mean slope highly negatively correlated
 
 
 #########################################
@@ -252,7 +249,8 @@ SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
 #Sediment type"
 
 
-         
+SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
+  select(-c( "Mean.slope", "km..at.flood.risk"))            
 
 #change to dataframe if necessary         
 class(SED_micro_cluster_sample)
@@ -369,6 +367,7 @@ fviz_dend(res.hcpc,
           cex = 0.9,                     # Label size
           palette = "black",               # Color palette see ?ggpubr::ggpar
           rect = TRUE,                   # Add rectangle around groups
+          labels_track_height = 1.6,      # Augment the room for labels
           main=""
 )
 
@@ -381,4 +380,4 @@ result_HCPC_micro_SED<- res.hcpc$data.clust
 #add sample ID as column
 result_HCPC_micro_SED$Unique.Sample.Identifier<-rownames(result_HCPC_micro_SED)
 
-write.csv(result_HCPC_micro_SED, "Final analysis/Results/result_HCPC_micro_SED.csv")
+write.csv(result_HCPC_micro_SED, "PLUXIN-FinalAnalysis/Results/result_HCPC_micro_SED.csv")

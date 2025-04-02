@@ -34,10 +34,10 @@ set.seed(123) #for reproducibility
 #Datasets
 ########################
 #resutls cluster
-result_HCPC_micro_SED<-as.data.frame(read_csv("Final analysis/Results/result_HCPC_micro_SED.csv"))
+result_HCPC_micro_SED<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_micro_SED.csv"))
 
 #adding sampling areas
-SamplingArea<-as.data.frame(read_xlsx("Final analysis/Raw data/SamplingAreas.xlsx"))
+SamplingArea<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/SamplingAreas.xlsx"))
 
 ## Fix some problems in colnames
 colnames(SamplingArea) <- make.names(colnames(SamplingArea))
@@ -97,7 +97,7 @@ data_long<-data_long%>%
                              ifelse(grepl("Conc_", variable), "Conc",
                                     ifelse(grepl("Shape_", variable), "Shape", NA)))))
 
-data_long$clust <- factor(data_long$clust, levels = c("6", "1","2","5","3","4"))
+data_long$clust <- factor(data_long$clust, levels = c("1", "2","3","4","5","6"))
 
 options(scipen=999)
 
@@ -199,7 +199,7 @@ ggplot(data_mean_Conc, aes(x = variable, y = value_mean, fill = clust)) +
 ###########################################
 #visualization PCA plot
 ###########################################
-result_HCPC_micro_SED_PCA<-as.data.frame(read_csv("Final analysis/Results/result_HCPC_micro_SED.csv"))
+result_HCPC_micro_SED_PCA<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_micro_SED.csv"))
 
 
 #merging with dataset containing sample areas

@@ -12,7 +12,7 @@ library(tidyr)
 ########################
 #dataset
 ########################
-data_full_qual<-read.csv("Final analysis/Final dataset/data_full_cleaned.csv")
+data_full_qual<-read.csv("PLUXIN-FinalAnalysis/Final dataset/data_full_cleaned.csv")
 
 
 ################################################
@@ -273,4 +273,4 @@ data_full_qual$`Weight..mg.`[data_full_qual$`Unique.Particle.Identifier` == "MAC
 #save datasets
 ########################
 dim(data_full_qual)
-write.csv(data_full_qual, "Final analysis/Final dataset/data_full_quality.csv")
+write.csv(data_full_qual, "PLUXIN-FinalAnalysis/Final dataset/data_full_quality.csv")

@@ -34,10 +34,10 @@ set.seed(123) #for reproducibility
 #Datasets
 ########################
 #resutls cluster
-result_HCPC_micro_WAT<-as.data.frame(read_csv("Final analysis/Results/result_HCPC_micro_WAT.csv"))
+result_HCPC_micro_WAT<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_micro_WAT.csv"))
 
 #adding sampling areas
-SamplingArea<-as.data.frame(read_xlsx("Final analysis/Raw data/SamplingAreas.xlsx"))
+SamplingArea<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/SamplingAreas.xlsx"))
 
 ## Fix some problems in colnames
 colnames(SamplingArea) <- make.names(colnames(SamplingArea))
@@ -245,7 +245,7 @@ result_HCPC_micro_WAT<-result_HCPC_micro_WAT%>%
 #needed for RDA
 cluster<-result_HCPC_micro_WAT%>%
   select(Unique.Sample.Identifier, clust, cluster)
-write.csv(cluster, "Final analysis/Final dataset/Cluster.csv")
+write.csv(cluster, "PLUXIN-FinalAnalysis/Final dataset/Cluster.csv")
 
 ############################################
 ####    CLUSTER - Bargraphs             ####
@@ -397,7 +397,7 @@ ggplot(data_mean_Conc, aes(x = variable, y = value_mean, fill = cluster)) +
 ###########################################
 #visualization PCA plot - no use if supplementary variables are not used in the analysis
 ###########################################
-result_HCPC_micro_WAT_PCA<-as.data.frame(read_csv("Final analysis/Results/result_HCPC_micro_WAT.csv"))
+result_HCPC_micro_WAT_PCA<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_micro_WAT.csv"))
 
 
 #merging with dataset containing sample areas

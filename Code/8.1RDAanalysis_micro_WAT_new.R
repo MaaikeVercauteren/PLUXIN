@@ -16,17 +16,17 @@ set.seed(123) #for reproducibility
 ########################
 
 #microplastic data
-data_full_WAT_micro_spot<-as.data.frame(read_csv("Final analysis/Final dataset/Datasplits/data_full_WAT_micro_spot.csv"))
+data_full_WAT_micro_spot<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_WAT_micro_spot.csv"))
 
 
 #cluster
-cluster<-as.data.frame(read_csv("Final analysis/Final dataset/Cluster.csv"))
+cluster<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Cluster.csv"))
 cluster<-cluster%>%
   select(-`...1`)
 
 ###Descriptor data
 #based on full Descriptor dataset with additions
-Descriptor_WAT_additions<- read.csv("Final analysis/Final dataset/Descriptor/Descriptor_WAT_withadditions.csv")
+Descriptor_WAT_additions<- read.csv("PLUXIN-FinalAnalysis/Final dataset/Descriptor/Descriptor_WAT_withadditions.csv")
 
 
 

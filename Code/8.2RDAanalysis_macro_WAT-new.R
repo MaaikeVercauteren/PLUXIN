@@ -15,9 +15,13 @@ set.seed(123) #for reproducibility
 ########################
 
 
-#Plastic characteristics
-#based on dataset with results of the clusters
-WAT_micro_RDA<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_micro_WAT.csv"))
+#Macroplastic data
+data_full_WAT_macro_spot<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_WAT_macro_spot.csv"))
+
+#cluster
+cluster<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Cluster.csv"))
+cluster<-cluster%>%
+  select(-`...1`)
 
 
 ###Descriptor data
@@ -30,37 +34,43 @@ Descriptor_WAT_additions<- read.csv("PLUXIN-FinalAnalysis/Final dataset/Descript
 #############################################
 #Necessary changes in plastic dataset
 #############################################
-WAT_micro_selectionSamples<-WAT_micro_RDA%>%
+WAT_macro_selectionSamples<-WAT_macro_RDA%>%
   select(`Unique.Sample.Identifier`)
 
 #veranderen rijnamen (nodig voor PCA/Cluster)
-rownames(WAT_micro_RDA) <- WAT_micro_RDA[,"Unique.Sample.Identifier"]
+rownames(WAT_macro_RDA) <- WAT_macro_RDA[,"Unique.Sample.Identifier"]
 
 #Plastic parameters 
 #"PP_total_conc"                
 #"PE_total_conc"                
-#"PES_total_conc"              
 ##"PS_total_conc"                               
-#"PAM_total_conc"               
 #"Others_total_conc"        
 #"Unknown_pm_total_conc"        
-#"SC1_total_conc"               
-#"SC2_total_conc"              
 #"SC3_total_conc"              
 #"SC4_total_conc"               
-#"SC5_total_conc"               
+#"SC5_total_conc"   
+#"SC6_total_conc"
+#"SC7_total_conc"
 #"Loc_total_conc"               
-#"avgLWratio" 
+#"Unknown_shape_total_conc"     
+#"fragments_total_conc"        
+#"filaments_total_conc"         
+#"pellets_total_conc"           
+#"films_total_conc"             
+#"foams_total_conc"            
+#"others_shape_total_conc"
 
-WAT_micro_RDA<-WAT_micro_RDA%>%
-  select("PES_total_conc", "PS_total_conc", "PAM_total_conc","Others_total_conc","PE_total_conc",
-         "PP_total_conc", "Unknown_pm_total_conc",
-         "SC1_total_conc", "SC2_total_conc","SC3_total_conc", "SC4_total_conc", "SC5_total_conc","Loc_total_conc", 
-         "avgLWratio")
+WAT_macro_RDA<-WAT_macro_RDA%>%
+  select("PP_total_conc","PE_total_conc","PS_total_conc", "Others_total_conc","Unknown_pm_total_conc",
+         "Unknown_shape_total_conc","fragments_total_conc","filaments_total_conc","pellets_total_conc","films_total_conc","foams_total_conc",
+         "others_shape_total_conc",
+         "SC3_total_conc","SC4_total_conc","SC5_total_conc","SC6_total_conc" ,"SC7_total_conc",
+         "Loc_total_conc")
 
 
 # Hellinger transform the community data
-WAT_micro_RDA_hel <- decostand(WAT_micro_RDA, method = "hellinger")
+WAT_macro_RDA_hel <- decostand(WAT_macro_RDA, method = "hellinger")
+
 
 
 
@@ -102,7 +112,7 @@ WAT_micro_RDA_hel <- decostand(WAT_micro_RDA, method = "hellinger")
 #Diepte weglaten 
 
 Descriptor_WAT_additions<-Descriptor_WAT_additions%>%
-  select(-c("Date", "Matrix", "Sampling.Location", "Sampling.Location.specific","Sediment.type",  "Depth.Sample..m.",
+  select(-c("X.1","X", "...1", "Date", "Matrix", "Sampling.Location", "Sampling.Location.specific","Sediment.type",  "Depth.Sample..m.",
             "Outside_insideBend","radius..degree.","radius..km.","area..km..",
             "pixels.at.flood.risk", "X..buffer.at.flood.risk", "total.flooding.depth.in.buffer","km..at.flood.risk",
             "average.flooding.depth.in.buffer", "pop20", "pop22" , "pop21","Pop_AVG", 
@@ -134,7 +144,7 @@ Descriptor_WAT_additions <- Descriptor_WAT_additions %>%
                                   mean_autumn_precip, 
                                   tot_precip_mean))
 
-Descriptor_WAT_additions<-WAT_micro_selectionSamples%>%
+Descriptor_WAT_additions<-WAT_macro_selectionSamples%>%
   left_join(Descriptor_WAT_additions, by = "Unique.Sample.Identifier")
 
 
@@ -168,6 +178,10 @@ Descriptor_WAT_additions<-Descriptor_WAT_additions%>%
   select(-Unique.Sample.Identifier)
 
 
+
+
+
+
 ################################################
 ##Redundancy analysis
 ################################################
@@ -197,7 +211,7 @@ legend("topright",
        legend =  round(seq(0,1, length.out = 6),1),
        y.intersp = 0.7, bty = "n",
        fill = rev(heat.colors(6)))
-
+#no strong correlations
 
 
 
@@ -206,22 +220,22 @@ legend("topright",
 ####################################
 set.seed(123) #for reproducibility
 # Initial RDA with ALL of the environmental data
-micro.wat.rda <- rda(WAT_micro_RDA_hel ~ ., data = Descriptor_WAT_additions)
-summary(micro.wat.rda)
+macro.wat.rda <- rda(WAT_macro_RDA_hel ~ ., data = Descriptor_WAT_additions)
+summary(macro.wat.rda)
 
 # Find the adjusted R2 of the model with the retained env
 # variables
-RsquareAdj(micro.wat.rda)$adj.r.squared
+RsquareAdj(macro.wat.rda)$adj.r.squared
 #calculating the proportion of the variation of  Y explained by the variables in  X
 
 #test model significance
-anova.cca(micro.wat.rda, step = 1000)
+anova.cca(macro.wat.rda, step = 1000)
 
 #You can also test the significance of each variable
-anova.cca(micro.wat.rda, step = 1000, by = "term")
+anova.cca(macro.wat.rda, step = 1000, by = "term")
 
 # RDA plot
-ordiplot(micro.wat.rda, scaling = 2)
+ordiplot(macro.wat.rda, scaling = 2)
 
 
 
@@ -231,31 +245,31 @@ ordiplot(micro.wat.rda, scaling = 2)
 ####################################
 set.seed(123) #for reproducibility
 # Initial RDA with ALL of the environmental data
-micro.wat.rda <- rda(WAT_micro_RDA_hel ~ Active.overflow + Nearby.vegetation + NaturalBank + industry...km..+ transport...km.. + recreation...km.. + tot_precip_mean + mean_winddirection_mean + Season, data = Descriptor_WAT_additions)
-summary(micro.wat.rda)
+macro.wat.rda <- rda(WAT_macro_RDA_hel ~ Active.overflow + NaturalBank +meandering+ transport...km..+urban...km..  +mean_windspeed_mean  + mean_winddirection_mean , data = Descriptor_WAT_additions)
+summary(macro.wat.rda)
 
 # Find the adjusted R2 of the model with the retained env
 # variables
-RsquareAdj(micro.wat.rda)$adj.r.squared
+RsquareAdj(macro.wat.rda)$adj.r.squared
 #calculating the proportion of the variation of  Y explained by the variables in  X
 
 #test model significance
-anova.cca(micro.wat.rda, step = 1000)
+anova.cca(macro.wat.rda, step = 1000)
 
 #You can also test the significance of each variable
-anova.cca(micro.wat.rda, step = 1000, by = "term")
+anova.cca(macro.wat.rda, step = 1000, by = "term")
 
-ordiplot(micro.wat.rda, scaling=1)
+ordiplot(macro.wat.rda, scaling=1)
 
 #plot
-env_scores <- scores(micro.wat.rda, display = "bp", scaling = 2)
+env_scores <- scores(macro.wat.rda, display = "bp", scaling = 2)
 env_df <- as.data.frame(env_scores)
 env_df$Variable <- rownames(env_df)
 
 #with clusters
 ggplot() +
-  geom_point(data = as.data.frame(scores(micro.wat.rda, display = "sites", scaling = 2)), 
-             aes(x = RDA1, y = RDA2, color = as.factor(result_HCPC_micro_WAT$clust)), size=3) +
+  geom_point(data = as.data.frame(scores(macro.wat.rda, display = "sites", scaling = 1)), 
+             aes(x = RDA1, y = RDA2, color = as.factor(result_HCPC_macro_WAT$clust)), size=3) +
   geom_segment(data = env_df, 
                aes(x = 0, y = 0, xend = RDA1, yend = RDA2), 
                arrow = arrow(length = unit(0.2, "cm")), 
@@ -269,8 +283,8 @@ ggplot() +
 
 #with indication of subclusters
 ggplot() +
-  geom_point(data = as.data.frame(scores(micro.wat.rda, display = "sites", scaling = 2)), 
-             aes(x = RDA1, y = RDA2, color = result_HCPC_micro_WAT$cluster), size=3) +
+  geom_point(data = as.data.frame(scores(macro.wat.rda, display = "sites", scaling = 1)), 
+             aes(x = RDA1, y = RDA2, color = result_HCPC_macro_WAT$cluster), size=3) +
   geom_segment(data = env_df, 
                aes(x = 0, y = 0, xend = RDA1, yend = RDA2), 
                arrow = arrow(length = unit(0.2, "cm")), 
@@ -288,35 +302,17 @@ ggplot() +
 #forward selection of environmental variables that are statistically important (not necessarily biologically important)
 #Here, we are essentially adding one variable at a time, and retaining it if it significantly increases the model’s adjusted R²
 set.seed(123) #for reproducibility
-fwd.sel.micro.wat <- ordiR2step(rda(WAT_micro_RDA_hel ~ 1, data = Descriptor_WAT_additions),
-                      scope = formula(micro.wat.rda), direction = "forward", R2scope = TRUE,
-                      pstep = 1000, trace = FALSE)
+fwd.sel.macro.wat <- ordiR2step(rda(WAT_macro_RDA_hel ~ 1, data = Descriptor_WAT_additions),
+                                scope = formula(macro.wat.rda), direction = "backward", R2scope = TRUE,
+                                pstep = 1000, trace = FALSE)
 #check the new model with forward selected variables
-fwd.sel.micro.wat$call
+fwd.sel.macro.wat$call
+summary(fwd.sel.macro.wat)
 
 
 
-# Re-run the RDA with the significant variables
-micro.wat.rda.signif <- rda(formula = WAT_micro_RDA_hel ~ ecotope + mean_winddirection_mean + 
-                            Season, data = Descriptor_WAT_additions)
-summary(micro.wat.rda.signif)
-# Find the adjusted R2 of the model with the retained env
-# variables
-RsquareAdj(micro.wat.rda.signif)$adj.r.squared
-#calculating the proportion of the variation of  Y explained by the variables in  X
 
-#test model significance
-anova.cca(micro.wat.rda.signif, step = 1000)
 
-#You can also test the significance of each variable
-anova.cca(micro.wat.rda.signif, step = 1000, by = "term")
-
-#testing significance of canonical axis
-anova.cca(micro.wat.rda.signif, step = 1000, by = "axis")
-#only the 1 axis is signficant
-
-# RDA plot
-ordiplot(micro.wat.rda.signif, scaling = 2, type = "text")
 
 
 

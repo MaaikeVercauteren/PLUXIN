@@ -37,7 +37,7 @@ set.seed(123) #for reproducibility
 #Datasets
 ########################
 
-data_full_WAT_macro_spot<-as.data.frame(read_csv("Final analysis/Final dataset/Datasplits/data_full_WAT_macro_spot.csv"))
+data_full_WAT_macro_spot<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_WAT_macro_spot.csv"))
 
 
 
@@ -279,7 +279,7 @@ result_HCPC_macro_WAT<- res.hcpc$data.clust
 #add sample ID as column
 result_HCPC_macro_WAT$Unique.Sample.Identifier<-rownames(result_HCPC_macro_WAT)
 
-write.csv(result_HCPC_macro_WAT, "Final analysis/Results/result_HCPC_macro_WAT.csv")
+write.csv(result_HCPC_macro_WAT, "PLUXIN-FinalAnalysis/Results/result_HCPC_macro_WAT.csv")
 
 
 

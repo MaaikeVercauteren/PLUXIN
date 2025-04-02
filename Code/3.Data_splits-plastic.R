@@ -10,7 +10,7 @@ library(openxlsx)
 ########################
 #datasets
 ########################
-data<-read.csv("Final analysis/Final dataset/data_full_quality.csv")
+data<-read.csv("PLUXIN-FinalAnalysis/Final dataset/data_full_quality.csv")
 
 
 
@@ -120,10 +120,10 @@ length(unique(data_full_SED_micro$ `Unique.Sample.Identifier`))#27 samples
 ########################
 #save datasets
 ########################
-write.csv(data_full_SED_micro, "Final analysis/Final dataset/Datasplits/data_full_SED_micro.csv")
+write.csv(data_full_SED_micro, "PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_SED_micro.csv")
 
-write.csv(data_full_WAT_micro_spot, "Final analysis/Final dataset/Datasplits/data_full_WAT_micro_spot.csv")
+write.csv(data_full_WAT_micro_spot, "PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_WAT_micro_spot.csv")
 
-write.csv(data_full_SED_macro, "Final analysis/Final dataset/Datasplits/data_full_SED_macro.csv")
+write.csv(data_full_SED_macro, "PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_SED_macro.csv")
 
-write.csv(data_full_WAT_macro_spot, "Final analysis/Final dataset/Datasplits/data_full_WAT_macro_spot.csv")
+write.csv(data_full_WAT_macro_spot, "PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_WAT_macro_spot.csv")

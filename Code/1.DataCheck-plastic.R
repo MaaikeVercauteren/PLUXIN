@@ -29,17 +29,17 @@ gglayer_theme<-list(
 ########################
 
 ##particle information #werken met de 'Particle data sheet' ipv 'Integrated dataset'
-plastic<-as.data.frame(read_xlsx("Final analysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Particle data"))
+plastic<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Particle data"))
 
 ##Sample metadata
-sample_metadata<-as.data.frame(read_xlsx("Final analysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Sampling overview"))
+sample_metadata<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Sampling overview"))
 
 
 #campaign metadata
-campaign_metadata<-as.data.frame(read_xlsx("Final analysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Campaigns overview"))
+campaign_metadata<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Campaigns overview"))
 
 ##adding sampling area and alternative names of sampling locations 
-SamplingArea<-as.data.frame(read_xlsx("Final analysis/Raw data/SamplingAreas.xlsx"))
+SamplingArea<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/SamplingAreas.xlsx"))
 
 
 
@@ -440,5 +440,5 @@ colnames(data_full) <- make.names(colnames(data_full))
 ## Save the data
 ################################################
 
-write.csv(data_full, "Final analysis/Final dataset/data_full_cleaned.csv")
+write.csv(data_full, "PLUXIN-FinalAnalysis/Final dataset/data_full_cleaned.csv")
 

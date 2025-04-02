@@ -21,13 +21,13 @@ gglayer_theme<-list(
 #datasets
 ########################
 
-data_full_SED_micro<- read.csv("Final analysis/Final dataset/Datasplits/data_full_SED_micro.csv")
+data_full_SED_micro<- read.csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_SED_micro.csv")
 
-data_full_WAT_micro_spot<-read.csv( "Final analysis/Final dataset/Datasplits/data_full_WAT_micro_spot.csv")
+data_full_WAT_micro_spot<-read.csv( "PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_WAT_micro_spot.csv")
 
-data_full_SED_macro<- read.csv("Final analysis/Final dataset/Datasplits/data_full_SED_macro.csv")
+data_full_SED_macro<- read.csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_SED_macro.csv")
 
-data_full_WAT_macro_spot<- read.csv("Final analysis/Final dataset/Datasplits/data_full_WAT_macro_spot.csv")
+data_full_WAT_macro_spot<- read.csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_WAT_macro_spot.csv")
 
 
 ########################
@@ -50,7 +50,7 @@ data_full_SED_spot<-rbind(data_full_SED_micro, data_full_SED_macro)
 #dataset with replicate and dry weight for SED_micro
 ########################
 
-replicate_SED_metadata<-as.data.frame(read_xlsx("Final analysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Replicate data Sediment"))
+replicate_SED_metadata<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Replicate data Sediment"))
 ## Fix some problems in colnames
 colnames(replicate_SED_metadata) <- make.names(colnames(replicate_SED_metadata))
 

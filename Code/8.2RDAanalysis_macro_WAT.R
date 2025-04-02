@@ -17,12 +17,12 @@ set.seed(123) #for reproducibility
 
 #Plastic characteristics
 #based on dataset with results of the clusters
-WAT_macro_RDA<-as.data.frame(read_csv("Final analysis/Results/result_HCPC_macro_WAT.csv"))
+WAT_macro_RDA<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_macro_WAT.csv"))
 
 
 ###Descriptor data
 #based on full Descriptor dataset with additions
-Descriptor_WAT_additions<- read.csv("Final analysis/Final dataset/Descriptor/Descriptor_WAT_withadditions.csv")
+Descriptor_WAT_additions<- read.csv("PLUXIN-FinalAnalysis/Final dataset/Descriptor/Descriptor_WAT_withadditions.csv")
 
 
 

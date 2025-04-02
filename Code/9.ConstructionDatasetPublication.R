@@ -15,7 +15,7 @@ library(lubridate)
 ########################
 
 
-data <- read.csv("Final analysis/Final dataset/data_full_quality.csv")
+data <- read.csv("PLUXIN-FinalAnalysis/Final dataset/data_full_quality.csv")
 
 
 
@@ -23,7 +23,7 @@ data <- read.csv("Final analysis/Final dataset/data_full_quality.csv")
 #dataset with replicate and dry weight for SED_micro
 ########################
 
-replicate_SED_metadata<-as.data.frame(read_xlsx("Final analysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Replicate data Sediment"))
+replicate_SED_metadata<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/OVAM PLUXIN merged dataset revAC_2 2024 manuscript_V3.xlsx", sheet = "Replicate data Sediment"))
 ## Fix some problems in colnames
 colnames(replicate_SED_metadata) <- make.names(colnames(replicate_SED_metadata))
 
@@ -284,4 +284,4 @@ view(data)
 ## Exporting data
 ########################################################################   
 
-write.csv(data, "Final analysis/Final dataset/data_full_publication.csv")
+write.csv(data, "PLUXIN-FinalAnalysis/Final dataset/data_full_publication.csv")
