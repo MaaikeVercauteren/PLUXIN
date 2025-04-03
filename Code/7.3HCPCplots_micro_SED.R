@@ -225,15 +225,15 @@ result_HCPC_micro_SED_PCA<-result_HCPC_micro_SED_PCA%>%
             "Loc_total_conc","avgLWratio",
             "ecotope","Sediment.type",
             "recreation...km..","urban...km..","RWZI..nr.","Depth.Sample..m.","mean_windspeed_mean",
-            "width","agriculture..km..","industry...km..","waste...km..",
+            "agriculture..km..","industry...km..","waste...km..",
             "pop_dens","human.foot.print","mean_temp_mean", "clust",  "Sampling.Area.general"))
 
 
 #defining quantitative and qualitative variables
 quanti.sup.final<-c("recreation...km..","urban...km..","RWZI..nr.","Depth.Sample..m.","mean_windspeed_mean",
-                    "width","agriculture..km..","industry...km..","waste...km..",
+                    "agriculture..km..","industry...km..","waste...km..",
                     "pop_dens","human.foot.print","mean_temp_mean")
-quali.sup.final<-c("ecotope","Sediment.type"? "clust",  "Sampling.Area.general")
+quali.sup.final<-c("ecotope","Sediment.type", "clust",  "Sampling.Area.general")
 
 
 

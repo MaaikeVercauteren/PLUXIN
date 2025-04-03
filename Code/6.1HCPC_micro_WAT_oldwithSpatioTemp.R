@@ -142,13 +142,13 @@ summary(WAT_micro_cluster_sample_2km$`radius..km.`)
 #removal of cloudiness in general: "mean_cloudiness_mean"
 #removal of total precip.: "tot_precip_TOT"
 #removal of mean pressure: "mean_pressure_mean"
-
+#removal of "Depth.river": lot of NA
 WAT_micro_cluster_sample_2km<-WAT_micro_cluster_sample_2km%>%
   select(c("Unique.Sample.Identifier","PP_total_conc","PE_total_conc",
          "PES_total_conc","PS_total_conc","PAM_total_conc","Others_total_conc",
          "Unknown_pm_total_conc","SC1_total_conc","SC2_total_conc","SC3_total_conc","SC4_total_conc",
          "SC5_total_conc","Loc_total_conc","avgLWratio","Sampling.Location.specific",
-         "Mean.slope","Depth.river","Active.overflow", "Nearby.vegetation","NaturalBank","width",
+         "Mean.slope","Active.overflow", "Nearby.vegetation","NaturalBank","width",
          "meandering","shortest.distance.from.shore","RWZI..nr.",
          "Waste.facilities..nr.", "agriculture..km..","industry...km..",
          "transport...km..","urban...km..","water...km..",
@@ -294,7 +294,7 @@ quanti.sup<-c( "width", "RWZI..nr.", "Waste.facilities..nr.",
                "pop_dens",
                "mean_winddirection_mean",
                "tot_precip_mean","mean_temp_mean","mean_windspeed_mean",
-               "Mean.slope","Depth.river")
+               "Mean.slope")
 
 quali.sup<-c("Nearby.vegetation",  "meandering", "ecotope", "Season")
 

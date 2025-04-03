@@ -179,32 +179,32 @@ colnames(SED_micro_cluster_sample)
 ########################
 ##Check collinearity
 ########################
-#change categorical in numeric
-Descriptor_numeric <- Descriptor_2km_SED %>%
-  mutate(across(where(is.character), as.factor)) %>%  # Convert characters to factors
-  mutate(across(where(is.factor), ~ as.numeric(as.factor(.))))
-
-# We can visually look for correlations between variables:
-heatmap(abs(cor(Descriptor_numeric)), 
-        # Compute pearson correlation (note they are absolute values)
-        col = rev(heat.colors(6)), 
-        Colv = NA, Rowv = NA)
-legend("topright", 
-       title = "Absolute Pearson R",
-       legend =  round(seq(0,1, length.out = 6),1),
-       y.intersp = 0.7, bty = "n",
-       fill = rev(heat.colors(6)))
-
-#Correlations between 
-# Depth and width ==> remove width
-# width and distance from shore==> remove width and distance
-# active overflow and waste facilities ==> remove active overflow
-# active overlow and nature==> remove active overflow
-# nearby vegetation and agriculutre 
-# depth and water 
-# water and shortest distance and width ==> remove width and distance
-# ecotope and natural bank ==> remove natural bank
-# transport and waste facilities 
+# #change categorical in numeric
+# Descriptor_numeric <- Descriptor_2km_SED %>%
+#   mutate(across(where(is.character), as.factor)) %>%  # Convert characters to factors
+#   mutate(across(where(is.factor), ~ as.numeric(as.factor(.))))
+# 
+# # We can visually look for correlations between variables:
+# heatmap(abs(cor(Descriptor_numeric)), 
+#         # Compute pearson correlation (note they are absolute values)
+#         col = rev(heat.colors(6)), 
+#         Colv = NA, Rowv = NA)
+# legend("topright", 
+#        title = "Absolute Pearson R",
+#        legend =  round(seq(0,1, length.out = 6),1),
+#        y.intersp = 0.7, bty = "n",
+#        fill = rev(heat.colors(6)))
+# 
+# #Correlations between 
+# # Depth and width ==> remove width
+# # width and distance from shore==> remove width and distance
+# # active overflow and waste facilities ==> remove active overflow
+# # active overlow and nature==> remove active overflow
+# # nearby vegetation and agriculutre 
+# # depth and water 
+# # water and shortest distance and width ==> remove width and distance
+# # ecotope and natural bank ==> remove natural bank
+# # transport and waste facilities 
 
 
 SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
@@ -383,9 +383,9 @@ fviz_dend(res.hcpc,
 ##exporting results
 #################################
 
-# 
-# result_HCPC_micro_SED<- res.hcpc$data.clust
-# #add sample ID as column
-# result_HCPC_micro_SED$Unique.Sample.Identifier<-rownames(result_HCPC_micro_SED)
-# 
-# write.csv(result_HCPC_micro_SED, "PLUXIN-FinalAnalysis/Results/result_HCPC_micro_SED.csv")
+
+result_HCPC_micro_SED<- res.hcpc$data.clust
+#add sample ID as column
+result_HCPC_micro_SED$Unique.Sample.Identifier<-rownames(result_HCPC_micro_SED)
+
+write.csv(result_HCPC_micro_SED, "PLUXIN-FinalAnalysis/Results/result_HCPC_micro_SED.csv")
