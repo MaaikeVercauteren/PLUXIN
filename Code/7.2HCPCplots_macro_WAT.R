@@ -34,7 +34,7 @@ set.seed(123) #for reproducibility
 #Datasets
 ########################
 #resutls cluster
-result_HCPC_macro_WAT<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_macro_WAT.csv"))
+result_HCPC_macro_WAT<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_macro_WAT_allsamples.csv"))
 
 #adding sampling areas
 SamplingArea<-as.data.frame(read_xlsx("PLUXIN-FinalAnalysis/Raw data/SamplingAreas.xlsx"))
@@ -230,7 +230,10 @@ result_HCPC_macro_WAT<-result_HCPC_macro_WAT%>%
                                  ifelse(result_HCPC_macro_WAT$Unique.Sample.Identifier %in% subcluster2, "S2", 
                                         ifelse(result_HCPC_macro_WAT$Unique.Sample.Identifier %in% subcluster4, "S4", "S3")))))
 
-
+#needed for RDA
+cluster<-result_HCPC_macro_WAT%>%
+  select(Unique.Sample.Identifier, clust, cluster)
+write.csv(cluster, "PLUXIN-FinalAnalysis/Final dataset/Cluster_mac_w.csv")
 
 
 ############################################
@@ -385,7 +388,7 @@ ggplot(data_mean_Conc, aes(x = variable, y = value_mean, fill = cluster)) +
 ###########################################
 #visualization PCA plot - no use if supplementary variables are not used in the analysis
 ###########################################
-result_HCPC_macro_WAT_PCA<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_macro_WAT.csv"))
+result_HCPC_macro_WAT_PCA<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_macro_WAT_allsamples.csv"))
 
 
 #merging with dataset containing sample areas
@@ -405,17 +408,15 @@ result_HCPC_macro_WAT_PCA<-result_HCPC_macro_WAT_PCA%>%
             "others_shape_total_conc",
             "SC3_total_conc","SC4_total_conc","SC5_total_conc","SC6_total_conc" ,"SC7_total_conc",
             "Loc_total_conc", "clust",
-            "Active.overflow","nature...km..","Depth.river",
-            "Waste.facilities..nr.","pop_dens", "NaturalBank", "clust", "Sampling.Area.general"))
+            "Active.overflow","pop_dens", "Sampling.Area.general"))
 
 
 #defining quantitative and qualitative variables
-quanti.sup.final<-c("Active.overflow","nature...km..","Depth.river",
-                    "Waste.facilities..nr.","pop_dens")
-quali.sup.final<-c("NaturalBank")
+quanti.sup.final<-c("Active.overflow","pop_dens")
 
 
-res.pca<-PCA(result_HCPC_macro_WAT_PCA, ncp=3,quanti.sup=quanti.sup.final, quali.sup=c(quali.sup.final, "clust", "Sampling.Area.general"),graph=FALSE)
+
+res.pca<-PCA(result_HCPC_macro_WAT_PCA, ncp=3,quanti.sup=quanti.sup.final, quali.sup=c( "clust", "Sampling.Area.general"),graph=FALSE)
 res.pca$eig
 
 plot.PCA(res.pca,choix='var')
@@ -424,9 +425,9 @@ plot.PCA(res.pca,invisible=c('ind.sup'),label =c('ind'), loadings=TRUE)
 
 
 #pca
-fviz_pca_biplot(res.pca, 
+fviz_pca_biplot(res.pca,
                 obs.scale=1, var.scale=1, alpha=0.5,col.quanti.sup="darkgrey",
-                label = c("quali.sup", "quanti.sub"), 
+                label = c("quali.sup", "quanti.sub"),
                 invisible = "var") +
   geom_point(size=4,aes(color=factor(result_HCPC_macro_WAT_PCA$`Sampling.Area.general`),
                         shape=factor(result_HCPC_macro_WAT_PCA$clust)))+

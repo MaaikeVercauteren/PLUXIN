@@ -73,14 +73,14 @@ length(unique(data_full_WAT_macro_spot$ `Unique.Sample.Identifier`))
 #reforming the dataset
 data_full_WAT_macro_cluster_sample <- data_full_WAT_macro_spot %>%
   group_by(`Unique.Sample.Identifier`) %>%
-  mutate(PP_total = sum(Polymer_NERC == "polypropylene"),
-         PE_total = sum(Polymer_NERC == "polyethylene"),
-         PES_total = sum(Polymer_NERC == "polyester"),
-         PS_total = sum(Polymer_NERC == "polystyrene"),
-         PVC_total=sum (Polymer_NERC == "polychlorinated polymer"), 
-         PAM_total=sum(Polymer_NERC == "polyacrilamide"),
-         Others_total = sum(Polymer_NERC %in% c("ethylene-vinyl-acetate", "polyether urethane-polypropylene oxide - methylene", "polybutadiene" , "polyurethane", "acrylonitrile butadiene styrene", "polyvinyl alcohol","polymethylacrylate", "polyamide (nylon)", "cellophane", "sodium sterate")),
-         Unknown_pm_total = sum(Polymer_NERC == "undefined plastic"),
+  mutate(PP_total = sum(Polymer_NERC == "polypropylene", na.rm=T),
+         PE_total = sum(Polymer_NERC == "polyethylene", na.rm=T),
+         PES_total = sum(Polymer_NERC == "polyester", na.rm=T),
+         PS_total = sum(Polymer_NERC == "polystyrene", na.rm=T),
+         PVC_total=sum (Polymer_NERC == "polychlorinated polymer", na.rm=T), 
+         PAM_total=sum(Polymer_NERC == "polyacrilamide", na.rm=T),
+         Others_total = sum(Polymer_NERC %in% c("ethylene-vinyl-acetate", "polyether urethane-polypropylene oxide - methylene", "polybutadiene" , "polyurethane", "acrylonitrile butadiene styrene", "polyvinyl alcohol","polymethylacrylate", "polyamide (nylon)", "cellophane", "sodium sterate", na.rm=T)),
+         Unknown_pm_total = sum(Polymer_NERC == "undefined plastic", na.rm=T),
          Unknown_shape_total = sum(Shape_tot == "Undefined micro-litter items", na.rm=T),
          fragments_total = sum(Shape_tot == "fragments", na.rm=T),
          filaments_total = sum(Shape_tot == "filaments", na.rm=T),
@@ -88,14 +88,14 @@ data_full_WAT_macro_cluster_sample <- data_full_WAT_macro_spot %>%
          films_total = sum(Shape_tot == "films", na.rm=T),
          foams_total = sum(Shape_tot == "foams", na.rm=T),
          granules_total = sum(Shape_tot == "granules", na.rm=T),
-         others_shape_total = sum(Shape_tot %in% c("J211","J8", "J67", "J9", "J23", "J24")),
-         SC1_total = sum(SizeClass == "SC1"),
-         SC2_total = sum(SizeClass == "SC2"),
-         SC3_total = sum(SizeClass == "SC3"),
-         SC4_total = sum(SizeClass == "SC4"),
-         SC5_total = sum(SizeClass == "SC5"),
-         SC6_total = sum(SizeClass == "SC6"),
-         SC7_total = sum(SizeClass == "SC7"))%>%
+         others_shape_total = sum(Shape_tot %in% c("J211","J8", "J67", "J9", "J23", "J24", na.rm=T)),
+         SC1_total = sum(SizeClass == "SC1", na.rm=T),
+         SC2_total = sum(SizeClass == "SC2", na.rm=T),
+         SC3_total = sum(SizeClass == "SC3", na.rm=T),
+         SC4_total = sum(SizeClass == "SC4", na.rm=T),
+         SC5_total = sum(SizeClass == "SC5", na.rm=T),
+         SC6_total = sum(SizeClass == "SC6", na.rm=T),
+         SC7_total = sum(SizeClass == "SC7", na.rm=T))%>%
   add_count(`Unique.Sample.Identifier`, name = "Loc_total") %>%
   mutate(VolumeTOT= sum(unique(`Volume..L.`)))%>%
   mutate_at(vars(PP_total:Loc_total),
