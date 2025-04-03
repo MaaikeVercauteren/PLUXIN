@@ -173,38 +173,64 @@ SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
 
 colnames(SED_micro_cluster_sample)
 
+#######################
+#Check collinearity
+#######################
+#change categorical in numeric
+temporal<-SED_micro_cluster_sample%>%
+  select(c("tot_precip_mean","mean_temp_mean", "mean_windspeed_mean" ,
+           "mean_winddirection_mean", "pop_dens", "Season"))
+Local<-SED_micro_cluster_sample%>%
+  select(c("width", "shortest.distance.from.shore", "RWZI..nr.", "Waste.facilities..nr.",
+           "agriculture..km..","industry...km..",
+           "recreation...km..","transport...km..","urban...km..","nature...km..",
+           "waste...km..","water...km..","human.foot.print",
+           "pop_dens",
+           "Active.overflow", "Mean.slope","Nearby.vegetation", "NaturalBank", "meandering", "ecotope"))
 
 
 
-########################
-##Check collinearity
-########################
-# #change categorical in numeric
-# Descriptor_numeric <- Descriptor_2km_SED %>%
-#   mutate(across(where(is.character), as.factor)) %>%  # Convert characters to factors
-#   mutate(across(where(is.factor), ~ as.numeric(as.factor(.))))
-# 
-# # We can visually look for correlations between variables:
-# heatmap(abs(cor(Descriptor_numeric)), 
-#         # Compute pearson correlation (note they are absolute values)
-#         col = rev(heat.colors(6)), 
-#         Colv = NA, Rowv = NA)
-# legend("topright", 
-#        title = "Absolute Pearson R",
-#        legend =  round(seq(0,1, length.out = 6),1),
-#        y.intersp = 0.7, bty = "n",
-#        fill = rev(heat.colors(6)))
-# 
-# #Correlations between 
-# # Depth and width ==> remove width
-# # width and distance from shore==> remove width and distance
-# # active overflow and waste facilities ==> remove active overflow
-# # active overlow and nature==> remove active overflow
-# # nearby vegetation and agriculutre 
-# # depth and water 
-# # water and shortest distance and width ==> remove width and distance
-# # ecotope and natural bank ==> remove natural bank
-# # transport and waste facilities 
+##change categorical variables to numeric
+temporal_numeric <- temporal %>%
+  mutate(across(where(is.character) , as.factor)) %>%  # Convert characters (except sample identifier) to factors
+  mutate(across(where(is.factor), ~ as.numeric(as.factor(.))))
+Local_numeric <- Local %>%
+  mutate(across(where(is.character) , as.factor)) %>%  # Convert characters (except sample identifier) to factors
+  mutate(across(where(is.factor), ~ as.numeric(as.factor(.))))
+
+
+#We can visually look for correlations between variables:
+heatmap(abs(cor(temporal_numeric)), 
+        # Compute pearson correlation (note they are absolute values)
+        col = rev(heat.colors(6)), 
+        Colv = NA, Rowv = NA)
+legend("topright", 
+       title = "Absolute Pearson R",
+       legend =  round(seq(0,1, length.out = 6),1),
+       y.intersp = 1, bty = "n",
+       fill = rev(heat.colors(6)))
+
+heatmap(abs(cor(Local_numeric)), 
+        # Compute pearson correlation (note they are absolute values)
+        col = rev(heat.colors(6)), 
+        Colv = NA, Rowv = NA)
+legend("topright", 
+       title = "Absolute Pearson R",
+       legend =  round(seq(0,1, length.out = 6),1),
+       y.intersp = 1, bty = "n",
+       fill = rev(heat.colors(6)))
+
+
+#Correlations between
+# Depth and width ==> remove width
+# width and distance from shore==> remove width and distance
+# active overflow and waste facilities ==> remove active overflow
+# active overlow and nature==> remove active overflow
+# nearby vegetation and agriculutre
+# depth and water
+# water and shortest distance and width ==> remove width and distance
+# ecotope and natural bank ==> remove natural bank
+# transport and waste facilities
 
 
 SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
