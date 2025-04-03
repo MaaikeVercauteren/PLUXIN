@@ -205,120 +205,130 @@ ggplot(data_mean_Conc, aes(x = variable, y = value_mean, fill = clust)) +
 # ###########################################
 # #visualization PCA plot
 # ###########################################
-# result_HCPC_micro_SED_PCA<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_micro_SED.csv"))
-# 
-# 
-# #merging with dataset containing sample areas
-# result_HCPC_micro_SED_PCA<-result_HCPC_micro_SED_PCA%>%
-#   left_join(SamplingArea, by ="Unique.Sample.Identifier")
-# 
-# #veranderen rijnamen (nodig voor PCA/Cluster)
-# rownames(result_HCPC_micro_SED_PCA) <- result_HCPC_micro_SED_PCA[,"Unique.Sample.Identifier"]
-# 
-# 
-# colnames(result_HCPC_micro_SED_PCA)
-# 
-# ##selection of variables that were significantly associated with the clusters
-# result_HCPC_micro_SED_PCA<-result_HCPC_micro_SED_PCA%>%
-#   select (c("PP_total_conc","PE_total_conc","PES_total_conc","PS_total_conc","PAM_total_conc",
-#             "SC1_total_conc","SC2_total_conc" ,"SC3_total_conc","SC4_total_conc",
-#             "Loc_total_conc","avgLWratio",
-#             "NaturalBank", "meandering", "ecotope","Sediment.type",
-#             "recreation...km..","urban...km..","RWZI..nr.","Depth.Sample..m.","mean_windspeed_mean",
-#             "width","agriculture..km..","industry...km..","waste...km..",
-#             "pop_dens","human.foot.print","mean_temp_mean", "clust",  "Sampling.Area.general"))
-# 
-# 
-# #defining quantitative and qualitative variables
-# quanti.sup.final<-c("recreation...km..","urban...km..","RWZI..nr.","Depth.Sample..m.","mean_windspeed_mean",
-#                     "width","agriculture..km..","industry...km..","waste...km..",
-#                     "pop_dens","human.foot.print","mean_temp_mean")
-# quali.sup.final<-c("NaturalBank", "meandering", "ecotope","Sediment.type")
-# 
-# 
-# 
-# 
-# res.pca<-PCA(result_HCPC_micro_SED_PCA, ncp=6,quanti.sup=quanti.sup.final, quali.sup=c(quali.sup.final, "clust", "Sampling.Area.general"),graph=FALSE)
-# res.pca$eig
-# 
-# plot.PCA(res.pca,choix='var')
-# plot.PCA(res.pca,invisible=c('ind.sup'),label =c('ind'), loadings=TRUE)
-# 
-# 
-# 
-# #pca
-# fviz_pca_biplot(res.pca, 
-#                 obs.scale=1, var.scale=1, alpha=0.5,col.quanti.sup="darkgrey",
-#                 label = c("quali.sup", "quanti.sub"), 
-#                 invisible = "var") +
-#   geom_point(size=4,aes(color=factor(result_HCPC_micro_SED_PCA$`Sampling.Area.general`),
-#                         shape=factor(result_HCPC_micro_SED_PCA$clust)))+
-#   guides(shape = guide_legend(title = "Cluster"),
-#          colour = guide_legend(title = "Sampling location"))+ labs(title="PCA plot of clusters")
-# 
-# 
-# 
-# 
-# 
+result_HCPC_micro_SED_PCA<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Results/result_HCPC_micro_SED.csv"))
+
+
+#merging with dataset containing sample areas
+result_HCPC_micro_SED_PCA<-result_HCPC_micro_SED_PCA%>%
+  left_join(SamplingArea, by ="Unique.Sample.Identifier")
+
+#veranderen rijnamen (nodig voor PCA/Cluster)
+rownames(result_HCPC_micro_SED_PCA) <- result_HCPC_micro_SED_PCA[,"Unique.Sample.Identifier"]
+
+
+colnames(result_HCPC_micro_SED_PCA)
+
+##selection of variables that were significantly associated with the clusters
+result_HCPC_micro_SED_PCA<-result_HCPC_micro_SED_PCA%>%
+  select (c("PP_total_conc","PE_total_conc","PES_total_conc","PS_total_conc","PAM_total_conc",
+            "SC1_total_conc","SC2_total_conc" ,"SC3_total_conc","SC4_total_conc",
+            "Loc_total_conc","avgLWratio",
+            "ecotope","Sediment.type",
+            "recreation...km..","urban...km..","RWZI..nr.","Depth.Sample..m.","mean_windspeed_mean",
+            "width","agriculture..km..","industry...km..","waste...km..",
+            "pop_dens","human.foot.print","mean_temp_mean", "clust",  "Sampling.Area.general"))
+
+
+#defining quantitative and qualitative variables
+quanti.sup.final<-c("recreation...km..","urban...km..","RWZI..nr.","Depth.Sample..m.","mean_windspeed_mean",
+                    "width","agriculture..km..","industry...km..","waste...km..",
+                    "pop_dens","human.foot.print","mean_temp_mean")
+quali.sup.final<-c("ecotope","Sediment.type"? "clust",  "Sampling.Area.general")
+
+
+
+
+res.pca<-PCA(result_HCPC_micro_SED_PCA, ncp=6,quanti.sup=quanti.sup.final, quali.sup=c(quali.sup.final, "clust", "Sampling.Area.general"),graph=FALSE)
+res.pca$eig
+
+plot.PCA(res.pca,choix='var')
+plot.PCA(res.pca,invisible=c('ind.sup'),label =c('ind'), loadings=TRUE)
+
+
+
+#pca
+fviz_pca_biplot(res.pca,
+                obs.scale=1, var.scale=1, alpha=0.5,col.quanti.sup="darkgrey",
+                label = c("quali.sup.final", "quanti.sup.final"),
+                invisible = "var") +
+  geom_point(size=4,aes(color=factor(result_HCPC_micro_SED_PCA$`Sampling.Area.general`),
+                        shape=factor(result_HCPC_micro_SED_PCA$clust)))+
+  guides(shape = guide_legend(title = "Cluster"),
+         colour = guide_legend(title = "Sampling location"))+ labs(title="PCA plot of clusters")
+
+
+#pca
+fviz_pca_biplot(res.pca,
+                obs.scale=1, var.scale=1, alpha=0.5,col.quanti.sup="darkgrey",
+                label = c("quali.sup.final", "quanti.sup.final"),
+                invisible = "var") +
+  geom_point(size=4,aes(shape=factor(result_HCPC_micro_SED_PCA$clust)))+
+  guides(shape = guide_legend(title = "Cluster"))+ labs(title="PCA plot of clusters")
+
+
+
+
 # ######################################################################################
 # ##visualisation contribution of quali variables to PCA
 # ######################################################################################
-# 
-# # Extract contributions of variables to the first two principal components
-# qualisup_contrib <- as.data.frame(res.pca$quali.sup$v.test)
-# 
-# # Keep only PC1 and PC2 (or choose more components if needed)
-# qualisup_contrib <- qualisup_contrib[, c("Dim.1", "Dim.2")]
-# 
-# # Add variable names as a new column
-# qualisup_contrib$Variable <- rownames(qualisup_contrib)
-# 
-# 
-# #Select variables
-# qualisup_contrib<-qualisup_contrib%>%
-#   filter(Variable %in% c("NaturalBank_Yes", "meandering_Yes", "Antropogeen","Diep Subtidaal","Hoogdynamisch sublittoraal","Matig Diep Subtidaal"))
-# 
-# # Convert data to long format for plotting
-# qualisup_contrib_long <- melt(qualisup_contrib, id.vars = "Variable")
-# 
-# 
-# ggplot(qualisup_contrib_long, aes(x = Variable, y = value, fill = variable)) +
-#   geom_bar(stat = "identity", position = "dodge") +
-#   facet_wrap(~variable, scales = "free_x", nrow=1) +  # Separate plots for PC1 and PC2
-#   coord_flip() +  # Flip for horizontal bars
-#   scale_fill_manual(values = c("#009E73", "#E69F00")) + # Custom colors
-#   labs(x = "", y = "Contribution (%)", title = "Variable Contributions to PCA") +
-#   theme_minimal() +
-#   theme(text = element_text(size = 14),legend.position = "none")
-# 
+
+# Extract contributions of variables to the first two principal components
+qualisup_contrib <- as.data.frame(res.pca$quali.sup$v.test)
+
+# Keep only PC1 and PC2 (or choose more components if needed)
+qualisup_contrib <- qualisup_contrib[, c("Dim.1", "Dim.2")]
+
+# Add variable names as a new column
+qualisup_contrib$Variable <- rownames(qualisup_contrib)
+
+
+#Select variables
+qualisup_contrib<-qualisup_contrib%>%
+  filter(Variable %in% c("Antropogeen","Diep Subtidaal","Hoogdynamisch sublittoraal","Matig Diep Subtidaal", "Sand", "Sludge", "Sludge+sand"))
+                         
+                 
+
+# Convert data to long format for plotting
+qualisup_contrib_long <- melt(qualisup_contrib, id.vars = "Variable")
+
+
+ggplot(qualisup_contrib_long, aes(x = Variable, y = value, fill = variable)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~variable, scales = "free_x", nrow=1) +  # Separate plots for PC1 and PC2
+  coord_flip() +  # Flip for horizontal bars
+  scale_fill_manual(values = c("#009E73", "#E69F00")) + # Custom colors
+  labs(x = "", y = "Contribution (%)", title = "Variable Contributions to PCA") +
+  theme_minimal() +
+  theme(text = element_text(size = 14),legend.position = "none")
+
 # ######################################################################################
 # ##visualisation contribution of quanti to PCA
 # ######################################################################################
-# 
-# 
-# # Extract contributions of variables to the first two principal components
-# quantisup_contrib <- as.data.frame(res.pca$quanti.sup$cos2) #same result using cos
-# #represents the quality of representation for variables on the factor map. It’s calculated as the squared coordinates: var.cos2 = var.coord * var.coord.
-# 
-# 
-# # Keep only PC1 and PC2 (or choose more components if needed)
-# quantisup_contrib <- quantisup_contrib[, c("Dim.1", "Dim.2")]
-# 
-# # Add variable names as a new column
-# quantisup_contrib$Variable <- rownames(quantisup_contrib)
-# 
-# # Convert data to long format for plotting
-# quantisup_contrib_long <- melt(quantisup_contrib, id.vars = "Variable")
-# 
-# 
-# ggplot(quantisup_contrib_long, aes(x = Variable, y = value, fill = variable)) +
-#   geom_bar(stat = "identity", position = "dodge") +
-#   facet_wrap(~variable, scales = "free_x", nrow=1) +  # Separate plots for PC1 and PC2
-#   coord_flip() +  # Flip for horizontal bars
-#   scale_fill_manual(values = c("#009E73", "#E69F00")) + # Custom colors
-#   labs(x = "", y = "Contribution (%)", title = "Variable Contributions to PCA") +
-#   theme_minimal() +
-#   theme(text = element_text(size = 14), legend.position = "none")
+
+
+# Extract contributions of variables to the first two principal components
+quantisup_contrib <- as.data.frame(res.pca$quanti.sup$cos2) #same result using cos
+#represents the quality of representation for variables on the factor map. It’s calculated as the squared coordinates: var.cos2 = var.coord * var.coord.
+
+
+# Keep only PC1 and PC2 (or choose more components if needed)
+quantisup_contrib <- quantisup_contrib[, c("Dim.1", "Dim.2")]
+
+# Add variable names as a new column
+quantisup_contrib$Variable <- rownames(quantisup_contrib)
+
+# Convert data to long format for plotting
+quantisup_contrib_long <- melt(quantisup_contrib, id.vars = "Variable")
+
+
+ggplot(quantisup_contrib_long, aes(x = Variable, y = value, fill = variable)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~variable, scales = "free_x", nrow=1) +  # Separate plots for PC1 and PC2
+  coord_flip() +  # Flip for horizontal bars
+  scale_fill_manual(values = c("#009E73", "#E69F00")) + # Custom colors
+  labs(x = "", y = "Contribution (%)", title = "Variable Contributions to PCA") +
+  theme_minimal() +
+  theme(text = element_text(size = 14), legend.position = "none")
 
 
 

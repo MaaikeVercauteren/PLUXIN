@@ -40,7 +40,7 @@ set.seed(123) #for reproducibility
 data_full_SED_micro<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Datasplits/data_full_SED_micro.csv"))
 
 #descriptor
-Descriptor_2km_SED<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Descriptor/Descriptor_2km_SED.csv"))
+Descriptor_2km_SED<-as.data.frame(read_csv("PLUXIN-FinalAnalysis/Final dataset/Descriptor/Descriptor_SED_withadditions.csv"))
 
 
 #dataset with replicate and dry weight for SED_micro
@@ -158,46 +158,57 @@ summary(SED_micro_cluster_sample)
 
 
 SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
-  select(-c( "PVC_total_conc", "Others_total_conc", "Unknown_pm_total_conc","SC5_total_conc",
-            "SC6_total_conc", "SC7_total_conc",
-            "Sampling.Location","Matrix","Outside_insideBend","radius..degree.","radius..km.","area..km..",
-            "pixels.at.flood.risk", "X..buffer.at.flood.risk", "total.flooding.depth.in.buffer",
-            "average.flooding.depth.in.buffer", "pop20", "pop22" , "pop21","Pop_AVG", 
-             "Sampling.Location.specific", "tot_precip", "mean_temp", "mean_windspeed", 
-             "mean_winddirection" , "mean_pressure", "mean_cloudiness", 
-             "mean_cloudiness_mean", "tot_precip_TOT","mean_pressure_mean", 
-            "...1", "...2"))   
+  select(c("Unique.Sample.Identifier","PP_total_conc","PE_total_conc","PES_total_conc",
+           "PS_total_conc","PAM_total_conc","SC1_total_conc","SC2_total_conc","SC3_total_conc",
+           "SC4_total_conc","Loc_total_conc","avgLWratio","width", "shortest.distance.from.shore", "RWZI..nr.", "Waste.facilities..nr.",
+           "agriculture..km..","industry...km..",
+           "recreation...km..","transport...km..","urban...km..","nature...km..",
+           "waste...km..","water...km..","human.foot.print",
+           "pop_dens",
+           "mean_winddirection_mean",
+           "tot_precip_mean","mean_temp_mean","mean_windspeed_mean",
+           "Active.overflow", "Mean.slope","Nearby.vegetation", "NaturalBank", "meandering", "ecotope", "Season", 
+           "Sediment.type", "Depth.Sample..m."))
+
+
 colnames(SED_micro_cluster_sample)
 
 
 
 
+########################
+##Check collinearity
+########################
+#change categorical in numeric
+Descriptor_numeric <- Descriptor_2km_SED %>%
+  mutate(across(where(is.character), as.factor)) %>%  # Convert characters to factors
+  mutate(across(where(is.factor), ~ as.numeric(as.factor(.))))
 
-##---------------------------------------------test correlation between temporal variables and local continuous variables
-temporal<-SED_micro_cluster_sample%>%
-  select(c("tot_precip_mean","mean_temp_mean", "mean_windspeed_mean" ,
-           "mean_winddirection_mean", "pop_dens"))
-Local<-SED_micro_cluster_sample%>%
-  select(c("Mean.slope","Depth.river","Active.overflow",
-           "width",
-           "shortest.distance.from.shore","RWZI..nr.","Waste.facilities..nr.",
-           "agriculture..km..","industry...km..",
-           "transport...km..","urban...km..", "water...km.." ,"nature...km..","recreation...km..",
-           "waste...km..","human.foot.print","km..at.flood.risk","Depth.Sample..m."))
+# We can visually look for correlations between variables:
+heatmap(abs(cor(Descriptor_numeric)), 
+        # Compute pearson correlation (note they are absolute values)
+        col = rev(heat.colors(6)), 
+        Colv = NA, Rowv = NA)
+legend("topright", 
+       title = "Absolute Pearson R",
+       legend =  round(seq(0,1, length.out = 6),1),
+       y.intersp = 0.7, bty = "n",
+       fill = rev(heat.colors(6)))
+
+#Correlations between 
+# Depth and width ==> remove width
+# width and distance from shore==> remove width and distance
+# active overflow and waste facilities ==> remove active overflow
+# active overlow and nature==> remove active overflow
+# nearby vegetation and agriculutre 
+# depth and water 
+# water and shortest distance and width ==> remove width and distance
+# ecotope and natural bank ==> remove natural bank
+# transport and waste facilities 
 
 
-
-
-#Checking correlation of the variables correlation matrix
-data.cor.temporal<-cor(temporal, method="spearman")
-corrplot(data.cor.temporal)
-
-#Checking correlation of the local variables correlation matrix
-data.cor.local<-cor(Local, method="spearman")
-corrplot(data.cor.local)
-#recreation and km² at flood risk are highly negatively correlated
-#industry and mean slope highly negatively correlated
-
+SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
+  select(-c(Active.overflow, shortest.distance.from.shore, width, NaturalBank, water...km..))
 
 #########################################
 ####    CLUSTER - all parameters     ####
@@ -249,9 +260,6 @@ corrplot(data.cor.local)
 #Sediment type"
 
 
-SED_micro_cluster_sample<-SED_micro_cluster_sample%>%
-  select(-c( "Mean.slope", "km..at.flood.risk"))            
-
 #change to dataframe if necessary         
 class(SED_micro_cluster_sample)
 SED_micro_cluster_sample<-as.data.frame(SED_micro_cluster_sample)
@@ -273,10 +281,10 @@ quanti.sup<-c( "width", "shortest.distance.from.shore", "RWZI..nr.", "Waste.faci
                "pop_dens",
                "mean_winddirection_mean",
                "tot_precip_mean","mean_temp_mean","mean_windspeed_mean",
-               "Active.overflow", "Depth.river","Depth.Sample..m.")
+               "Active.overflow", "Depth.river","Depth.Sample..m.", "Mean.slope")
 
 
-quali.sup<-c("Nearby.vegetation", "NaturalBank", "meandering", "ecotope","Sediment.type")
+quali.sup<-c("Nearby.vegetation", "NaturalBank", "meandering", "ecotope","Sediment.type", "Season")
 
 set.seed(123)
 #PCA uitvoeren maar de juiste variablen als supplementary ingeven (alle descriptors)
